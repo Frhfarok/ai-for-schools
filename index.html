@@ -880,13 +880,13 @@ The Sentence Builder learns by reading millions of books and websites online. It
 <button type="button" @click="fetchNextWordChoices()" class="submit-btn">Submit</button>
 <button type="button" @click="clearPromptInput()" class="clear-btn">Clear</button>
 </div>
-<div class="comic-text" x-show="hasSubmitted" style="background: #0F172A; color: #F8FAFC; padding: 12px 16px; border-radius: 10px; border: 2px solid #1E293B; font-size: 18px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
+<div class="comic-text" style="background: #0F172A; color: #F8FAFC; padding: 12px 16px; border-radius: 10px; border: 2px solid #1E293B; font-size: 18px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
 <div>
 <span x-text="prompt" style="color: #94A3B8;"></span> 
-<span style="border-bottom: 2px solid; font-weight: 700;" :style="'color: ' + selectedWordColor" x-text="selectedWord"></span>
+<span style="border-bottom: 2px solid; font-weight: 700;" :style="'color: ' + selectedWordColor" x-text="hasSubmitted ? selectedWord : '...'"></span>
 </div>
 <div>
-<span class="confidence-pill" :style="'background-color: ' + selectedWordColor" x-show="!isLoadingChoices && currentChoices.length > 0">
+<span class="confidence-pill" :style="'background-color: ' + selectedWordColor" x-show="hasSubmitted && !isLoadingChoices && currentChoices.length > 0">
 <span x-text="selectedProb + '% sure'"></span>
 </span>
 <span class="thinking-badge" x-show="isLoadingChoices">Thinking...</span>
@@ -896,9 +896,9 @@ The Sentence Builder learns by reading millions of books and websites online. It
 <div class="card">
 <h3 style="margin-bottom: 2px; color: #334155;">How the Al Decides</h3>
 <p class="section-subtitle">Al looks at several possible words, each word has its own percentage score:</p>
-<div style="display: flex; justify-content: center; gap: 24px; margin: 24px 0 12px 0;" x-show="hasSubmitted">
+<div style="display: flex; justify-content: center; gap: 24px; margin: 24px 0 12px 0;">
 <template x-for="(item, index) in currentChoices">
-<div style="display: flex; flex-direction: column; align-items: center; width: 56px;">
+<div style="display: flex; flex-direction: column; align-items: center; width: 56px;" x-show="hasSubmitted">
 <div class="bar-container-wrapper" style="height: 100px; width: 100%; display: flex; align-items: flex-end; justify-content: center; border-bottom: 2px solid #CBD5E1; position: relative;">
 <div class="chart-bar-element" :style="'width: 100%; height: ' + (item.prob) + '%; background-color: ' + item.color + '; box-shadow: ' + (selectedIndex === index ? '0 0 6px ' + item.color : 'none') + '; border-radius: 4px 4px 0 0;'">
 <span style="position: absolute; top: -22px; left: 50%; transform: translateX(-50%); font-size: 13px; font-weight: 700; color: #0F172A; white-space: nowrap;" x-text="item.prob + '%'"></span>
@@ -1223,7 +1223,6 @@ document.addEventListener('alpine:init', () => {
                 }
             } catch (error) {
                 console.error("Failed to fetch choices from API, applying fallback:", error);
-                // Injects temporary dummy options if the actual API endpoint fails
                 this.currentChoices = [
                     { word: "moon", prob: 45, color: "#8B5CF6" },
                     { word: "ground", prob: 30, color: "#06B6D4" },
