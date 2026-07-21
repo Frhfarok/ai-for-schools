@@ -436,7 +436,7 @@ header {
   background-color: #8B5CF6;
   color: #FFFFFF;
   border: none;
-  padding: 12px 20px;
+  padding: 12px 22px;
   border-radius: 10px;
   font-size: 16px;
   font-weight: 700;
@@ -452,7 +452,7 @@ header {
   background-color: #EF4444;
   color: #FFFFFF;
   border: none;
-  padding: 12px 20px;
+  padding: 12px 22px;
   border-radius: 10px;
   font-size: 16px;
   font-weight: 700;
@@ -895,22 +895,29 @@ The Sentence Builder learns by reading millions of books and websites online. It
   <button type="button" @click="fetchNextWordChoices()" class="submit-btn">Submit</button>
   <button type="button" @click="clearPromptInput()" class="clear-btn">Clear</button>
 </div>
-<div class="comic-text" style="background: #0F172A; color: #F8FAFC; padding: 12px 16px; border-radius: 10px; border: 2px solid #1E293B; font-size: 18px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
-<div>
-<span x-text="prompt" style="color: #94A3B8;"></span> <span style="border-bottom: 2px solid; font-weight: 700;" :style="'color: ' + selectedWordColor" x-text="selectedWord"></span>
+
+<!-- PREVIEW BOX WITH INLINE RIGHT-ALIGNED CONFIDENCE PILL -->
+<div class="comic-text" x-show="hasSubmitted || isLoadingChoices" style="background: #0F172A; color: #F8FAFC; padding: 12px 16px; border-radius: 10px; border: 2px solid #1E293B; font-size: 18px; display: flex; align-items: center; justify-content: space-between; flex-wrap: nowrap; gap: 12px;">
+  <div style="display: flex; align-items: center; gap: 6px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+    <span x-text="prompt" style="color: #94A3B8;"></span> 
+    <span style="border-bottom: 2px solid; font-weight: 700;" :style="'color: ' + selectedWordColor" x-text="selectedWord"></span>
+  </div>
+  <div style="flex-shrink: 0;">
+    <span class="confidence-pill" :style="'background-color: ' + selectedWordColor" x-show="!isLoadingChoices && currentChoices.length > 0">
+      <span x-text="selectedProb + '% sure'"></span>
+    </span>
+    <span class="thinking-badge" x-show="isLoadingChoices">Thinking...</span>
+  </div>
 </div>
-<div>
-<span class="confidence-pill" :style="'background-color: ' + selectedWordColor" x-show="!isLoadingChoices && currentChoices.length > 0">
-<span x-text="selectedProb + '% sure'"></span>
-</span>
-<span class="thinking-badge" x-show="isLoadingChoices">Thinking...</span>
 </div>
-</div>
-</div>
+
+<!-- HOW THE AI DECIDES CARD ALWAYS VISIBLE -->
 <div class="card">
 <h3 style="margin-bottom: 2px; color: #334155;">How the AI Decides</h3>
 <p class="section-subtitle">AI looks at several possible words, each word has its own percentage score:</p>
-<div style="display: flex; justify-content: center; gap: 24px; margin: 24px 0 12px 0;">
+
+<!-- BAR CHARTS SHOWN ONLY AFTER SUBMITTING -->
+<div x-show="hasSubmitted && currentChoices.length > 0" style="display: flex; justify-content: center; gap: 24px; margin: 24px 0 12px 0;">
 <template x-for="(item, index) in currentChoices">
 <div style="display: flex; flex-direction: column; align-items: center; width: 56px;">
 <div class="bar-container-wrapper" style="height: 100px; width: 100%; display: flex; align-items: flex-end; justify-content: center; border-bottom: 2px solid #CBD5E1; position: relative;">
@@ -922,12 +929,19 @@ The Sentence Builder learns by reading millions of books and websites online. It
 </div>
 </template>
 </div>
-<div style="display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-top: 8px;">
+
+<!-- PLACEHOLDER PROMPT WHEN NOT SUBMITTED -->
+<div x-show="!hasSubmitted" style="text-align: center; padding: 24px 0; color: #94A3B8; font-weight: 700; font-size: 15px;">
+Click Submit above to generate candidate word predictions.
+</div>
+
+<div style="display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-top: 16px;">
 <span style="color: #8B5CF6; font-weight: 700; font-size: 14px;">Logical</span>
 <input id="predictabilitySlider" type="range" min="0" max="100" x-model="predictability" @input="debouncedFetchNextWord()" class="slider-input ombre-slider" style="margin-top: 0;">
 <span style="color: #EF4444; font-weight: 700; font-size: 14px;">Creative</span>
 </div>
 </div>
+
 <div class="teacher-note" style="background-color: #FFFFFF; border: 2px solid #CBD5E1; border-left: 4px solid #8B5CF6;">
 When you slide towards "creative" the AI skips its top pick and chooses more unusual or funny words! This concept is known as controlling the <strong>temperature</strong>.
 </div>
@@ -1093,6 +1107,7 @@ document.addEventListener('alpine:init', () => {
     wordCount: 0,
     tokenBlocks: [],
     prompt: 'The space rocket safely landed on the',
+    hasSubmitted: false,
     predictability: 0,
     currentChoices: [],
     isLoadingChoices: false,
@@ -1136,7 +1151,6 @@ document.addEventListener('alpine:init', () => {
       const loadingEl = document.getElementById('fallback-loading-wrap');
       if (loadingEl) loadingEl.style.display = 'none';
       this.executeTokenAnalysis();
-      this.fetchNextWordChoices();
       this.loadSelectedStoryline();
       this.$watch('inputText', () => this.executeTokenAnalysis());
     },
@@ -1158,7 +1172,6 @@ document.addEventListener('alpine:init', () => {
     goToPage(pageNum) {
       this.activePage = pageNum;
       if (pageNum === 4) this.executeTokenAnalysis();
-      if (pageNum === 8 && this.prompt && this.prompt.trim() !== '') this.fetchNextWordChoices();
       if (pageNum === 12) this.loadSelectedStoryline();
       if (pageNum === 14) this.refreshPipelineTokens();
     },
@@ -1188,15 +1201,14 @@ document.addEventListener('alpine:init', () => {
     },
 
     handlePromptInput() {
-      if (!this.prompt || this.prompt.trim() === '') {
-        this.clearPromptInput();
-      } else {
-        this.debouncedFetchNextWord();
-      }
+      this.hasSubmitted = false;
+      this.currentChoices = [];
+      if (this.debounceTimer) clearTimeout(this.debounceTimer);
     },
 
     clearPromptInput() {
       this.prompt = '';
+      this.hasSubmitted = false;
       this.currentChoices = [];
       this.isLoadingChoices = false;
       if (this.debounceTimer) clearTimeout(this.debounceTimer);
@@ -1207,6 +1219,7 @@ document.addEventListener('alpine:init', () => {
         this.clearPromptInput();
         return;
       }
+      if (!this.hasSubmitted) return;
       this.isLoadingChoices = true;
       if (this.debounceTimer) clearTimeout(this.debounceTimer);
       this.debounceTimer = setTimeout(() => this.fetchNextWordChoices(), 500);
@@ -1218,6 +1231,7 @@ document.addEventListener('alpine:init', () => {
         return;
       }
 
+      this.hasSubmitted = true;
       this.isLoadingChoices = true;
       const temp = (100 - parseInt(this.predictability)) / 100;
 
