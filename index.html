@@ -1,1572 +1,1354 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>How LLM Works</title>
-    
-    <!-- Dyslexia-Friendly Font & Comic Style Fallback -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400;1,700&family=Comic+Neue:wght@700&display=swap" rel="stylesheet">
-
-    <!-- Standalone Browser BPE Tokenizer Engine (cl100k_base) -->
-    <script src="https://cdn.jsdelivr.net/npm/tiktoken@1.0.18/lite/tiktoken.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.1/dist/cdn.min.js" defer></script>
-
-    <style>
-        * {
-            font-family: 'Atkinson Hyperlegible', Verdana, sans-serif;
-            box-sizing: border-box;
-        }
-
-        body {
-            margin: 0;
-            background-color: #F8FAFC; 
-            color: #0F172A;
-            -webkit-font-smoothing: antialiased;
-            line-height: 1.5;
-            letter-spacing: 0.2px;
-            font-size: 16px;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .comic-text {
-            font-family: 'Comic Sans MS', 'Comic Neue', 'Comic Sans', cursive, sans-serif !important;
-        }
-
-        /* Typography Hierarchy */
-        h1 {
-            font-size: 26px;
-            font-weight: 700;
-            line-height: 1.3;
-            margin: 0 0 8px 0;
-        }
-
-        h2 {
-            font-size: 21px;
-            font-weight: 700;
-            line-height: 1.35;
-            margin: 0 0 10px 0;
-        }
-
-        h3 {
-            font-size: 18px;
-            font-weight: 700;
-            line-height: 1.35;
-            margin: 0 0 6px 0;
-        }
-
-        h4 {
-            font-size: 15px;
-            font-weight: 700;
-            margin: 0 0 4px 0;
-        }
-
-        p {
-            font-size: 16px;
-            line-height: 1.55;
-            margin: 0 0 10px 0;
-        }
-
-        /* Header */
-        header {
-            background-color: #0F172A; 
-            color: #FFFFFF;
-            padding: 14px 28px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 3px solid #1E293B;
-            box-shadow: 0 2px 10px rgba(15, 23, 42, 0.15);
-        }
-
-        .logo-text {
-            font-size: 19px;
-            font-weight: 700;
-            letter-spacing: 0.3px;
-            background: linear-gradient(90deg, #22D3EE, #A78BFA, #FB923C);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .home-icon-btn {
-            background: #1E293B;
-            border: 2px solid #334155;
-            color: #F1F5F9;
-            padding: 6px 14px;
-            cursor: pointer;
-            border-radius: 8px;
-            font-size: 15px;
-            font-weight: 700;
-            transition: all 0.2s ease;
-        }
-
-        .home-icon-btn:hover {
-            background-color: #334155;
-            transform: translateY(-1px);
-        }
-
-        /* Layout Container */
-        .container {
-            max-width: 1040px;
-            width: 100%;
-            margin: 0 auto;
-            padding: 20px;
-            flex-grow: 1;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .workspace-grid {
-            display: grid;
-            grid-template-columns: 1.7fr 1.3fr;
-            gap: 18px;
-        }
-
-        @media (max-width: 800px) {
-            .workspace-grid { grid-template-columns: 1fr; }
-        }
-
-        /* Cards & Panels */
-        .card {
-            background-color: #FFFFFF;
-            border-radius: 14px;
-            padding: 20px 22px;
-            border: 2px solid #E2E8F0;
-            box-shadow: 0 4px 16px -2px rgba(15, 23, 42, 0.05);
-            margin-bottom: 16px;
-            position: relative;
-        }
-
-        .menu-card {
-            background-color: #FFFFFF;
-            border-radius: 14px;
-            padding: 24px 18px;
-            text-align: center;
-            border: 2px solid #E2E8F0;
-            box-shadow: 0 4px 16px -2px rgba(15, 23, 42, 0.05);
-            transition: all 0.2s ease;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-        }
-
-        .menu-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 12px 24px -6px rgba(15, 23, 42, 0.1);
-        }
-
-        .menu-card .icon {
-            font-size: 32px;
-            margin-bottom: 6px;
-        }
-        
-        .theme-splitter:hover { border-color: #06B6D4; }
-        .theme-matcher:hover { border-color: #F97316; }
-        .theme-builder:hover { border-color: #8B5CF6; }
-
-        /* Buttons */
-        .start-btn {
-            color: #FFFFFF;
-            border: none;
-            padding: 10px 18px;
-            border-radius: 10px;
-            cursor: pointer;
-            width: 100%;
-            margin-top: 12px;
-            font-size: 16px;
-            font-weight: 700;
-            transition: all 0.2s ease;
-        }
-        
-        .bg-splitter { background-color: #06B6D4; }
-        .bg-splitter:hover { background-color: #0891B2; }
-        
-        .bg-builder { background-color: #8B5CF6; }
-        .bg-builder:hover { background-color: #7C3AED; }
-        
-        .bg-matcher { background-color: #F97316; }
-        .bg-matcher:hover { background-color: #EA580C; }
-
-        /* Navigation Controls */
-        .page-navigation-container {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-top: auto;
-            padding-top: 10px;
-        }
-
-        .justify-end { justify-content: flex-end; }
-
-        .nav-step-btn {
-            color: #FFFFFF;
-            border: none;
-            padding: 10px 22px;
-            border-radius: 10px;
-            cursor: pointer;
-            font-size: 16px;
-            font-weight: 700;
-            transition: all 0.2s ease;
-        }
-
-        .back-step-btn { background-color: #475569; }
-        .back-step-btn:hover { background-color: #334155; transform: translateY(-1px); }
-
-        .next-step-btn { background-color: #10B981; }
-        .next-step-btn:hover { background-color: #059669; transform: translateY(-1px); }
-
-        /* Tokens & Chips */
-        .token-block {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            height: 36px;
-            padding: 0 14px;
-            margin: 4px;
-            border-radius: 6px 0 0 6px;
-            background-color: #06B6D4; 
-            color: #FFFFFF;
-            font-size: 15px;
-            font-weight: 700;
-            white-space: pre;
-        }
-
-        .token-block::after {
-            content: '';
-            position: absolute;
-            right: -6px;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 12px;
-            height: 12px;
-            background-color: #06B6D4;
-            border-radius: 50%;
-        }
-
-        .token-block::before {
-            content: '';
-            position: absolute;
-            left: -6px;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 12px;
-            height: 12px;
-            background-color: #FFFFFF; 
-            border-radius: 50%;
-        }
-
-        .word-box {
-            display: inline-block;
-            padding: 4px 12px;
-            margin: 3px;
-            border-radius: 99px;
-            font-size: 15px;
-            font-weight: 700;
-        }
-
-        .in-context {
-            background-color: #FFF7ED;
-            border: 2px solid #F97316;
-            color: #9A3412;
-        }
-
-        .out-of-context {
-            opacity: 0.35;
-            background-color: #F1F5F9;
-            border: 2px dashed #64748B;
-            color: #475569;
-        }
-
-        /* Inputs */
-        .slider-input {
-            width: 100%;
-            margin-top: 8px;
-            cursor: pointer;
-            height: 8px;
-            background: #CBD5E1;
-            border-radius: 6px;
-            appearance: none;
-        }
-
-        .slider-input::-webkit-slider-thumb {
-            appearance: none;
-            width: 22px;
-            height: 22px;
-            border-radius: 50%;
-            background: #0F172A;
-            cursor: pointer;
-            border: 2px solid #FFFFFF;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-        }
-
-        .select-input {
-            width: 100%;
-            padding: 10px 14px;
-            border-radius: 10px;
-            border: 2px solid #CBD5E1;
-            background-color: #FFFFFF;
-            color: #0F172A;
-            margin-bottom: 12px;
-            cursor: pointer;
-            font-size: 16px;
-            outline: none;
-        }
-        .select-input:focus { border-color: #F97316; }
-
-        .ombre-slider {
-            background: linear-gradient(to right, #8B5CF6 0%, #D946EF 50%, #EF4444 100%) !important;
-        }
-        
-        .accent-output {
-            color: #0F172A; 
-            font-size: 24px;
-            font-weight: 700;
-        }
-
-        .stat-divider {
-            height: 2px;
-            background-color: #E2E8F0;
-            margin: 12px 0;
-        }
-
-        .teacher-note {
-            padding: 12px 16px;
-            background-color: #F8FAFC;
-            border-radius: 10px;
-            border-left: 4px solid #334155;
-            color: #1E293B;
-            font-size: 15px;
-        }
-
-        .radio-option {
-            display: block;
-            padding: 12px 16px;
-            margin: 10px 0;
-            border: 2px solid #E2E8F0;
-            border-radius: 10px;
-            cursor: pointer;
-            background-color: #FFFFFF;
-            font-size: 16px;
-            transition: all 0.2s ease;
-        }
-        .radio-option:hover { border-color: #94A3B8; background-color: #F8FAFC; }
-        .radio-option.selected-item { border-color: #0F172A; background-color: #F8FAFC; }
-
-        .progress-bar {
-            display: flex;
-            gap: 6px;
-            margin-bottom: 14px;
-        }
-        .progress-dot {
-            height: 6px;
-            flex-grow: 1;
-            border-radius: 4px;
-            background-color: #E2E8F0;
-            transition: background-color 0.3s ease;
-        }
-
-        .chart-bar-element {
-            width: 100%; 
-            border-radius: 4px 4px 0 0; 
-            transition: all 0.3s ease;
-            position: relative;
-        }
-
-        .sentence-preview-box {
-            background-color: #F8FAFC;
-            border: 2px solid #E2E8F0;
-            border-radius: 10px;
-            padding: 12px 16px;
-            color: #0F172A;
-            line-height: 1.5;
-            margin-bottom: 12px;
-            font-size: 18px;
-        }
-
-        .thinking-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            color: #475569;
-            padding: 4px 10px;
-            background-color: #F1F5F9;
-            border-radius: 999px;
-            border: 1px solid #CBD5E1;
-            font-size: 13px;
-            font-weight: 700;
-        }
-
-        .confidence-pill {
-            display: inline-flex;
-            align-items: center;
-            padding: 4px 12px;
-            border-radius: 999px;
-            color: #FFFFFF;
-            font-size: 13px;
-            font-weight: 700;
-        }
-
-        .section-subtitle {
-            color: #475569;
-            margin-bottom: 6px;
-            font-size: 14px;
-        }
-
-        .step-card {
-            margin-bottom: 10px;
-            padding: 10px 14px;
-            border-radius: 10px;
-            border-width: 2px;
-            border-style: solid;
-        }
-        .step-active-0 { border-color: #06B6D4 !important; background-color: #ECFEFF !important; }
-        .step-active-1 { border-color: #F97316 !important; background-color: #FFF7ED !important; }
-        .step-active-2 { border-color: #8B5CF6 !important; background-color: #F5F3FF !important; }
-        .step-inactive { border-color: #E2E8F0 !important; background-color: #FFFFFF !important; opacity: 0.5 !important; }
-
-        .chat-container {
-            display: flex;
-            flex-direction: column;
-            gap: 14px;
-            margin: 14px 0;
-        }
-
-        .chat-row {
-            display: flex;
-            align-items: flex-end;
-            gap: 12px;
-        }
-
-        .chat-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-            background-color: #F1F5F9;
-            border: 2px solid #64748B;
-            font-size: 18px;
-        }
-
-        .chat-bubble {
-            position: relative;
-            padding: 14px 18px;
-            border-radius: 16px;
-            line-height: 1.5;
-            max-width: 85%;
-            font-size: 16px;
-        }
-
-        .chat-bubble-cyan { background-color: #ECFEFF; border: 2px solid #06B6D4; color: #086078; }
-        .chat-bubble-orange { background-color: #FFF7ED; border: 2px solid #F97316; color: #9A3412; }
-        .chat-bubble-purple { background-color: #F5F3FF; border: 2px solid #8B5CF6; color: #5B21B6; }
-
-        .controls-toolbar {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background: #F8FAFC;
-            padding: 8px 12px;
-            border-radius: 10px;
-            border: 1px solid #E2E8F0;
-            margin-bottom: 12px;
-        }
-
-        .action-btn-group {
-            display: flex;
-            gap: 8px;
-        }
-
-        .action-btn {
-            border: none;
-            padding: 6px 14px;
-            border-radius: 8px;
-            font-size: 14px;
-            font-weight: 700;
-            cursor: pointer;
-            color: #FFFFFF;
-            transition: opacity 0.2s;
-        }
-        .action-btn:hover { opacity: 0.9; }
-
-        svg text { font-size: 13px !important; font-weight: 700 !important; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>How LLM Works</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400;1,700&family=Comic+Neue:wght@700&display=swap" rel="stylesheet">
+<!-- Standard BPE Tokenizer for Browser -->
+<script src="https://cdn.jsdelivr.net/npm/gpt-tokenizer/dist/cl100k_base.user.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.1/dist/cdn.min.js" defer></script>
+<style>
+* {
+  font-family: 'Atkinson Hyperlegible', Verdana, sans-serif;
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+  background-color: #F8FAFC;
+  color: #0F172A;
+  -webkit-font-smoothing: antialiased;
+  line-height: 1.5;
+  letter-spacing: 0.2px;
+  font-size: 16px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+.comic-text {
+  font-family: 'Comic Sans MS', 'Comic Neue', 'Comic Sans', cursive, sans-serif !important;
+}
+h1 {
+  font-size: 26px;
+  font-weight: 700;
+  line-height: 1.3;
+  margin: 0 0 8px 0;
+}
+h2 {
+  font-size: 21px;
+  font-weight: 700;
+  line-height: 1.35;
+  margin: 0 0 10px 0;
+}
+h3 {
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.35;
+  margin: 0 0 6px 0;
+}
+h4 {
+  font-size: 15px;
+  font-weight: 700;
+  margin: 0 0 4px 0;
+}
+p {
+  font-size: 16px;
+  line-height: 1.55;
+  margin: 0 0 10px 0;
+}
+header {
+  background-color: #0F172A;
+  color: #FFFFFF;
+  padding: 14px 28px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 3px solid #1E293B;
+  box-shadow: 0 2px 10px rgba(15, 23, 42, 0.15);
+}
+.logo-text {
+  font-size: 19px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  background: linear-gradient(90deg, #22D3EE, #A78BFA, #FB923C);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.home-icon-btn {
+  background: #1E293B;
+  border: 2px solid #334155;
+  color: #F1F5F9;
+  padding: 6px 14px;
+  cursor: pointer;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 700;
+  transition: all 0.2s ease;
+}
+.home-icon-btn:hover {
+  background-color: #334155;
+  transform: translateY(-1px);
+}
+.container {
+  max-width: 1040px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 20px;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+}
+.workspace-grid {
+  display: grid;
+  grid-template-columns: 1.7fr 1.3fr;
+  gap: 18px;
+}
+@media (max-width: 800px) {
+  .workspace-grid { grid-template-columns: 1fr; }
+}
+.card {
+  background-color: #FFFFFF;
+  border-radius: 14px;
+  padding: 20px 22px;
+  border: 2px solid #E2E8F0;
+  box-shadow: 0 4px 16px 2px rgba(15, 23, 42, 0.05);
+  margin-bottom: 16px;
+  position: relative;
+}
+.menu-card {
+  background-color: #FFFFFF;
+  border-radius: 14px;
+  padding: 24px 18px;
+  text-align: center;
+  border: 2px solid #E2E8F0;
+  box-shadow: 0 4px 16px 2px rgba(15, 23, 42, 0.05);
+  transition: all 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.menu-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 24px -6px rgba(15, 23, 42, 0.1);
+}
+.menu-card .icon {
+  font-size: 32px;
+  margin-bottom: 6px;
+}
+.theme-splitter:hover { border-color: #06B6D4; }
+.theme-matcher:hover { border-color: #F97316; }
+.theme-builder:hover { border-color: #8B5CF6; }
+.start-btn {
+  color: #FFFFFF;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 10px;
+  cursor: pointer;
+  width: 100%;
+  margin-top: 12px;
+  font-size: 16px;
+  font-weight: 700;
+  transition: all 0.2s ease;
+}
+.bg-splitter { background-color: #06B6D4; }
+.bg-splitter:hover { background-color: #0891B2; }
+.bg-builder { background-color: #8B5CF6; }
+.bg-builder:hover { background-color: #7C3AED; }
+.bg-matcher { background-color: #F97316; }
+.bg-matcher:hover { background-color: #EA580C; }
+.page-navigation-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: auto;
+  padding-top: 10px;
+}
+.justify-end { justify-content: flex-end; }
+.nav-step-btn {
+  color: #FFFFFF;
+  border: none;
+  padding: 10px 22px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 700;
+  transition: all 0.2s ease;
+}
+.back-step-btn { background-color: #475569; }
+.back-step-btn:hover { background-color: #334155; transform: translateY(-1px); }
+.next-step-btn { background-color: #10B981; }
+.next-step-btn:hover { background-color: #059669; transform: translateY(-1px); }
+.token-block {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  height: 36px;
+  padding: 0 14px;
+  margin: 4px;
+  border-radius: 6px 0 0 6px;
+  background-color: #06B6D4;
+  color: #FFFFFF;
+  font-size: 15px;
+  font-weight: 700;
+  white-space: pre;
+}
+.token-block::after {
+  content: "";
+  position: absolute;
+  right: -6px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 12px;
+  height: 12px;
+  background-color: #06B6D4;
+  border-radius: 50%;
+}
+.token-block::before {
+  content: "";
+  position: absolute;
+  left: -6px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 12px;
+  height: 12px;
+  background-color: #FFFFFF;
+  border-radius: 50%;
+}
+.word-box {
+  display: inline-block;
+  padding: 4px 12px;
+  margin: 3px;
+  border-radius: 99px;
+  font-size: 15px;
+  font-weight: 700;
+}
+.in-context {
+  background-color: #FFF7ED;
+  border: 2px solid #F97316;
+  color: #9A3412;
+}
+.out-of-context {
+  opacity: 0.35;
+  background-color: #F1F5F9;
+  border: 2px dashed #64748B;
+  color: #475569;
+}
+.slider-input {
+  width: 100%;
+  margin-top: 8px;
+  cursor: pointer;
+  height: 8px;
+  background: #CBD5E1;
+  border-radius: 6px;
+  appearance: none;
+}
+.slider-input::-webkit-slider-thumb {
+  appearance: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #0F172A;
+  cursor: pointer;
+  border: 2px solid #FFFFFF;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+}
+.select-input {
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 2px solid #CBD5E1;
+  background-color: #FFFFFF;
+  color: #0F172A;
+  margin-bottom: 12px;
+  cursor: pointer;
+  font-size: 16px;
+  outline: none;
+}
+.select-input:focus { border-color: #F97316; }
+.ombre-slider {
+  background: linear-gradient(to right, #8B5CF6 0%, #D946EF 50%, #EF4444 100%) !important;
+}
+.accent-output {
+  color: #0F172A;
+  font-size: 24px;
+  font-weight: 700;
+}
+.stat-divider {
+  height: 2px;
+  background-color: #E2E8F0;
+  margin: 12px 0;
+}
+.teacher-note {
+  padding: 12px 16px;
+  background-color: #F8FAFC;
+  border-radius: 10px;
+  border-left: 4px solid #334155;
+  color: #1E293B;
+  font-size: 15px;
+}
+.radio-option {
+  display: block;
+  padding: 12px 16px;
+  margin: 10px 0;
+  border: 2px solid #E2E8F0;
+  border-radius: 10px;
+  cursor: pointer;
+  background-color: #FFFFFF;
+  font-size: 16px;
+  transition: all 0.2s ease;
+}
+.radio-option:hover { border-color: #94A3B8; background-color: #F8FAFC; }
+.radio-option.selected-item { border-color: #0F172A; background-color: #F8FAFC; }
+.progress-bar {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+.progress-dot {
+  height: 6px;
+  flex-grow: 1;
+  border-radius: 4px;
+  background-color: #E2E8F0;
+  transition: background-color 0.3s ease;
+}
+.chart-bar-element {
+  width: 100%;
+  border-radius: 4px 4px 0 0;
+  transition: all 0.3s ease;
+  position: relative;
+}
+.sentence-preview-box {
+  background-color: #F8FAFC;
+  border: 2px solid #E2E8F0;
+  border-radius: 10px;
+  padding: 12px 16px;
+  color: #0F172A;
+  line-height: 1.5;
+  margin-bottom: 12px;
+  font-size: 18px;
+}
+.thinking-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: #475569;
+  padding: 4px 10px;
+  background-color: #F1F5F9;
+  border-radius: 999px;
+  border: 1px solid #CBD5E1;
+  font-size: 13px;
+  font-weight: 700;
+}
+.confidence-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  border-radius: 999px;
+  color: #FFFFFF;
+  font-size: 13px;
+  font-weight: 700;
+}
+.section-subtitle {
+  color: #475569;
+  margin-bottom: 6px;
+  font-size: 14px;
+}
+.step-card {
+  margin-bottom: 10px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  border-width: 2px;
+  border-style: solid;
+}
+.step-active-0 { border-color: #06B6D4 !important; background-color: #ECFEFF !important; }
+.step-active-1 { border-color: #F97316 !important; background-color: #FFF7ED !important; }
+.step-active-2 { border-color: #8B5CF6 !important; background-color: #F5F3FF !important; }
+.step-inactive { border-color: #E2E8F0 !important; background-color: #FFFFFF !important; opacity: 0.5 !important; }
+.chat-container {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin: 14px 0;
+}
+.chat-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+}
+.chat-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background-color: #F1F5F9;
+  border: 2px solid #64748B;
+  font-size: 18px;
+}
+.chat-bubble {
+  position: relative;
+  padding: 14px 18px;
+  border-radius: 16px;
+  line-height: 1.5;
+  max-width: 85%;
+  font-size: 16px;
+}
+.chat-bubble-cyan { background-color: #ECFEFF; border: 2px solid #06B6D4; color: #086078; }
+.chat-bubble-orange { background-color: #FFF7ED; border: 2px solid #F97316; color: #9A3412; }
+.chat-bubble-purple { background-color: #F5F3FF; border: 2px solid #8B5CF6; color: #5B21B6; }
+.controls-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #F8FAFC;
+  padding: 8px 12px;
+  border-radius: 10px;
+  border: 1px solid #E2E8F0;
+  margin-bottom: 12px;
+}
+.action-btn-group {
+  display: flex;
+  gap: 8px;
+}
+.action-btn {
+  border: none;
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  color: #FFFFFF;
+  transition: opacity 0.2s;
+}
+.action-btn:hover { opacity: 0.9; }
+svg text { font-size: 13px !important; font-weight: 700 !important; }
+</style>
 </head>
 <body x-data="llmSimulator">
-
-    <header>
-        <div class="logo-text">🚀 Large Language Models (LLMs)</div>
-        <nav>
-            <button class="home-icon-btn" x-show="activePage !== 1" @click="goToPage(1)" style="display: none;">
-                🏠 Home
-            </button>
-        </nav>
-    </header>
-
-    <noscript>
-        <main class="container">
-            <div class="card" style="border-top: 5px solid #EF4444;">
-                <h2 style="color:#B91C1C;">JavaScript is turned off</h2>
-                <p>This interactive lesson needs JavaScript to run. Please enable JavaScript in your browser and reload the page.</p>
-            </div>
-        </main>
-    </noscript>
-
-    <main class="container" id="fallback-loading-wrap">
-        <div class="card" style="border-top: 5px solid #64748B;">
-            <h2 style="color:#334155;">Loading the interactive lesson...</h2>
-            <p style="color:#475569;">Setting up the elements.</p>
-        </div>
-    </main>
-
-    <main class="container" x-show="alpineReady" style="display:none;">
-
-        <!-- PAGE 1: MENU -->
-        <template x-if="activePage === 1">
-            <div>
-                <div class="card" style="background: #0F172A; color: #FFFFFF; border: none; text-align: center; padding: 28px 20px; border-radius: 16px; margin-bottom: 20px;">
-                    <h1>Ever wondered how AI chats with you?</h1>
-                    <p style="color: #94A3B8; max-width: 650px; margin: 8px auto 0 auto;">
-                        AI tools do not think like humans. Let's look at the three core concepts of Large Language Models, from how text is broken into pieces, to how the AI decides what to say next.
-                    </p>
-                </div>
-
-                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;">
-                    <div class="menu-card theme-splitter">
-                        <div>
-                            <span class="icon">✂️</span>
-                            <h3>1. The Word Splitter</h3>
-                            <p style="color: #475569; font-size: 15px;">See how AI breaks sentences into smaller chunks called tokens.</p>
-                        </div>
-                        <button class="start-btn bg-splitter" @click="goToPage(2)">Explore</button>
-                    </div>
-                    <div class="menu-card theme-matcher">
-                        <div>
-                            <span class="icon">📖</span>
-                            <h3>2. The Context Window</h3>
-                            <p style="color: #475569; font-size: 15px;">See how many words the AI can keep track of at one time.</p>
-                        </div>
-                        <button class="start-btn bg-matcher" @click="goToPage(10)">Explore</button>
-                    </div>
-                    <div class="menu-card theme-builder">
-                        <div>
-                            <span class="icon">📝</span>
-                            <h3>3. The Sentence Builder</h3>
-                            <p style="color: #475569; font-size: 15px;">See how AI uses probability to guess the next word.</p>
-                        </div>
-                        <button class="start-btn bg-builder" @click="goToPage(6)">Explore</button>
-                    </div>
-                </div>
-            </div>
-        </template>
-
-        <!-- PAGE 2: WORD SPLITTER EXPLANATION -->
-        <template x-if="activePage === 2">
-            <div>
-                <div class="progress-bar">
-                    <div class="progress-dot" :style="'background-color: ' + getBarColor(2, 1)"></div>
-                    <div class="progress-dot" :style="'background-color: ' + getBarColor(2, 2)"></div>
-                    <div class="progress-dot" :style="'background-color: ' + getBarColor(2, 3)"></div>
-                    <div class="progress-dot" :style="'background-color: ' + getBarColor(2, 4)"></div>
-                </div>
-
-                <div class="card" style="border-top: 5px solid #06B6D4;">
-                    <h2 style="color: #0891B2;">✂️ The Word Splitter</h2>
-                    <p>
-                        AI cannot read whole words the way humans do. Before it can look at your sentence, it needs to split the word into smaller chunks.
-                    </p>
-                    <p>
-                        We call these smaller chunks <strong>tokens</strong>. A token can be a single word, a fragment of a long word, a full stop, or even an empty space.
-                    </p>
-                </div>
-
-                <div class="page-navigation-container justify-end">
-                    <button class="nav-step-btn next-step-btn" style="background-color: #06B6D4;" @click="goToPage(3)">Next ➔</button>
-                </div>
-            </div>
-        </template>
-
-        <!-- PAGE 3: WORD SPLITTER JIGSAW EXAMPLE -->
-        <template x-if="activePage === 3">
-            <div>
-                <div class="progress-bar">
-                    <div class="progress-dot" :style="'background-color: ' + getBarColor(3, 1)"></div>
-                    <div class="progress-dot" :style="'background-color: ' + getBarColor(3, 2)"></div>
-                    <div class="progress-dot" :style="'background-color: ' + getBarColor(3, 3)"></div>
-                    <div class="progress-dot" :style="'background-color: ' + getBarColor(3, 4)"></div>
-                </div>
-                <div class="card" style="border-top: 5px solid #06B6D4;">
-                    <h2 style="color: #0891B2;">Example: 🧩 Jigsaw Puzzle</h2>
-                    
-                    <div class="chat-container">
-                        <div class="chat-row">
-                            <div class="chat-avatar" style="border-color: #06B6D4;">🧩</div>
-                            <div class="chat-bubble chat-bubble-cyan">
-                                Think of a photo jigsaw. Instead of making one giant jigsaw puzzle piece, the whole image is made from many smaller puzzle pieces.
-                            </div>
-                        </div>
-                        <div class="chat-row">
-                            <div class="chat-avatar" style="border-color: #06B6D4;">✂️</div>
-                            <div class="chat-bubble chat-bubble-cyan">
-                                The Word Splitter works the same way. When it sees a long word, it breaks them into common sub-word sequences it already recognizes. This process is known as <strong>tokenization</strong>.
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="page-navigation-container">
-                    <button class="nav-step-btn back-step-btn" @click="goToPage(2)">Back</button>
-                    <button class="nav-step-btn next-step-btn" style="background-color: #06B6D4;" @click="goToPage(4)">Next ➔</button>
-                </div>
-            </div>
-        </template>
-
-        <!-- PAGE 4: LIVE WORD SPLITTER SIMULATION (BPE SUB-WORD TOKENIZER) -->
-        <template x-if="activePage === 4">
-            <div>
-                <div class="progress-bar">
-                    <div class="progress-dot" :style="'background-color: ' + getBarColor(4, 1)"></div>
-                    <div class="progress-dot" :style="'background-color: ' + getBarColor(4, 2)"></div>
-                    <div class="progress-dot" :style="'background-color: ' + getBarColor(4, 3)"></div>
-                    <div class="progress-dot" :style="'background-color: ' + getBarColor(4, 4)"></div>
-                </div>
-                <div class="workspace-grid">
-                    <section>
-                        <div class="card">
-                            <h2 style="color: #0F172A;">Live Word Splitter</h2>
-                            <p style="color:#475569; margin-bottom: 10px;">Type a sentence below to see how the AI splits it into tokens:</p>
-                            <input type="text" x-model="inputText" @input="executeTokenAnalysis()" class="comic-text" style="width: 100%; padding: 12px; border-radius: 10px; border: 2px solid #CBD5E1; box-sizing: border-box; background-color: #F8FAFC; color: #0F172A; font-size: 18px;">
-                        </div>
-                        
-                        <div class="card">
-                            <h3 style="color: #334155;">The Sub-Word Tokens</h3>
-                            <div style="background: #FFFFFF; padding: 6px 0; border-radius: 8px;">
-                                <template x-for="token in tokenBlocks">
-                                    <span class="token-block" x-text="token"></span>
-                                </template>
-                            </div>
-                        </div>
-                    </section>
-                    <aside>
-                        <div class="card sidebar-panel" style="background-color: #F8FAFC;">
-                            <div>
-                                <h3 style="color: #1E293B;">Total Words</h3>
-                                <div class="accent-output" x-text="wordCount" style="color: #334155;"></div>
-                                
-                                <div class="stat-divider"></div>
-                                
-                                <h3 style="color: #1E293B;">Total Tokens</h3>
-                                <div class="accent-output" x-text="tokenCount" style="color: #0891B2;"></div>
-                            </div>
-                            <div class="teacher-note" style="background-color: #FFFFFF; border: 2px solid #CBD5E1; border-left: 4px solid #06B6D4; margin-top: 14px;">
-                                💡 Notice how empty spaces ( ␣ ) and punctuation symbols have their own puzzle piece. They are never left out.
-                            </div>
-                        </div>
-                    </aside>
-                </div>
-                
-                <div class="page-navigation-container">
-                    <button class="nav-step-btn back-step-btn" @click="goToPage(3)">Back</button>
-                    <button class="nav-step-btn next-step-btn" style="background-color: #06B6D4;" @click="goToPage(5)">Next ➔</button>
-                </div>
-            </div>
-        </template>
-
-        <!-- PAGE 5: WORD SPLITTER REVIEW -->
-        <template x-if="activePage === 5">
-            <div>
-                <div class="progress-bar">
-                    <div class="progress-dot" :style="'background-color: ' + getBarColor(5, 1)"></div>
-                    <div class="progress-dot" :style="'background-color: ' + getBarColor(5, 2)"></div>
-                    <div class="progress-dot" :style="'background-color: ' + getBarColor(5, 3)"></div>
-                    <div class="progress-dot" :style="'background-color: ' + getBarColor(5, 4)"></div>
-                </div>
-                <div class="card" x-data="{ selectedAnswer: null, evaluated: false }">
-                    <h2 style="color: #0F172A;">Concept Review</h2>
-                    <p style="color: #0F172A;">
-                        True or False: When you submit a prompt, the AI skips all empty spaces and punctuation marks.
-                    </p>
-                    
-                    <div class="radio-option" :class="selectedAnswer === 'true' ? 'selected-item' : ''" @click="selectedAnswer = 'true'; evaluated = true">
-                        🟢 <strong>True</strong>. It only saves normal letters.
-                    </div>
-                    <div class="radio-option" :class="selectedAnswer === 'false' ? 'selected-item' : ''" @click="selectedAnswer = 'false'; evaluated = true">
-                        🔴 <strong>False</strong>. Punctuation marks and spaces are separated as their own tokens.
-                    </div>
-
-                    <div x-show="evaluated" style="margin-top: 14px; padding: 14px; border-radius: 10px; background-color: #F8FAFC; border: 2px solid #CBD5E1; border-left: 4px solid #06B6D4; display: none; color: #0F172A;">
-                        <span x-show="selectedAnswer === 'false'" style="color: #0891B2; font-weight: 700;">Correct Choice</span>
-                        <span x-show="selectedAnswer === 'true'" style="color: #DC2626; font-weight: 700;">Let's Review</span>
-                        <p style="margin: 6px 0 0 0; color: #1E293B;">
-                            Spaces and punctuation marks change the core meaning of a phrase. A question mark tells the model to draft an answer, so the splitter keeps them as important tokens.
-                        </p>
-                    </div>
-                </div>
-                <div class="page-navigation-container">
-                    <button class="nav-step-btn back-step-btn" @click="goToPage(4)">Back</button>
-                    <button class="nav-step-btn next-step-btn" style="background-color: #F97316;" @click="goToPage(10)">Go to Context Window ➔</button>
-                </div>
-            </div>
-        </template>
-
-        <!-- PAGE 6: CONTEXT WINDOW EXPLANATION -->
-        <template x-if="activePage === 10">
-            <div>
-                <div class="progress-bar">
-                    <div class="progress-dot" :style="'background-color: ' + getBarColor(10, 1)"></div>
-                    <div class="progress-dot" :style="'background-color: ' + getBarColor(10, 2)"></div>
-                    <div class="progress-dot" :style="'background-color: ' + getBarColor(10, 3)"></div>
-                    <div class="progress-dot" :style="'background-color: ' + getBarColor(10, 4)"></div>
-                </div>
-
-                <div class="card" style="border-top: 5px solid #F97316;">
-                    <h2 style="color: #EA580C;">📖 The Context Window</h2>
-                    <p>
-                        An AI cannot look at huge amount of text at once. It has a <strong>context window</strong>, which is the amount of information it can use when generating a response.
-                    </p>
-                    <p>
-                        If important information is outside the context window, the AI may not be able to see the information when answering your questions.
-                    </p>
-                </div>
-
-                <div class="page-navigation-container">
-                    <button class="nav-step-btn back-step-btn" style="background-color: #06B6D4;" @click="goToPage(5)">Back</button>
-                    <button class="nav-step-btn next-step-btn" style="background-color: #F97316;" @click="goToPage(11)">Next ➔</button>
-                </div>
-            </div>
-        </template>
-
-        <!-- PAGE 7: CONTEXT WINDOW EXAMPLE -->
-        <template x-if="activePage === 11">
-            <div>
-                <div class="progress-bar">
-                    <div class="progress-dot" :style="'background-color: ' + getBarColor(11, 1)"></div>
-                    <div class="progress-dot" :style="'background-color: ' + getBarColor(11, 2)"></div>
-                    <div class="progress-dot" :style="'background-color: ' + getBarColor(11, 3)"></div>
-                    <div class="progress-dot" :style="'background-color: ' + getBarColor(11, 4)"></div>
-                </div>
-                <div class="card" style="border-top: 5px solid #F97316;">
-                    <h2 style="color: #EA580C;">Example: 👨🏻‍🏫 Whiteboard Space</h2>
-                    
-                    <div class="chat-container">
-                        <div class="chat-row">
-                            <div class="chat-avatar" style="border-color: #F97316;">👩🏻‍🏫</div>
-                            <div class="chat-bubble chat-bubble-orange">
-                                Imagine a whiteboard with limited space. When it gets full, you have to wipe away the oldest notes to write new ones.
-                            </div>
-                        </div>
-                        <div class="chat-row">
-                            <div class="chat-avatar" style="border-color: #F97316;">📖</div>
-                            <div class="chat-bubble chat-bubble-orange">
-                                The <strong>context window</strong> can only hold a certain amount of information at one time. When new words come in, the oldest information disappears. Because of this, the AI might forget things you talked about earlier, just like you can no longer read the notes that were wiped off the board.
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="page-navigation-container">
-                    <button class="nav-step-btn back-step-btn" @click="goToPage(10)">Back</button>
-                    <button class="nav-step-btn next-step-btn" style="background-color: #F97316;" @click="goToPage(12)">Next ➔</button>
-                </div>
-            </div>
-        </template>
-
-        <!-- PAGE 8: CONTEXT WINDOW SIMULATION -->
-        <template x-if="activePage === 12">
-            <div>
-                <div class="progress-bar">
-                    <div class="progress-dot" :style="'background-color: ' + getBarColor(12, 1)"></div>
-                    <div class="progress-dot" :style="'background-color: ' + getBarColor(12, 2)"></div>
-                    <div class="progress-dot" :style="'background-color: ' + getBarColor(12, 3)"></div>
-                    <div class="progress-dot" :style="'background-color: ' + getBarColor(12, 4)"></div>
-                </div>
-                
-                <div class="card">
-                    <h2 style="color: #0F172A;">Context Window Simulation</h2>
-                    
-                    <select class="select-input" x-model="selectedStoryIndex" @change="loadSelectedStoryline()">
-                        <template x-for="(story, index) in storyOptions" :key="index">
-                            <option :value="index" x-text="story.title"></option>
-                        </template>
-                    </select>
-
-                    <div class="sentence-preview-box comic-text" x-text="storyWords.join(' ')"></div>
-
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-                        <span style="color: #334155; font-size: 14px; font-weight: 700;">Context Window Size</span>
-                        <span style="color: #EA580C; font-size: 14px; font-weight: 700;" x-text="windowSize + ' / ' + storyLength + ' words visible'"></span>
-                    </div>
-                    <input id="memorySlider" type="range" min="1" :max="storyLength" x-model="windowSize" @input="evaluateClippedPrediction()" class="slider-input" :style="'background: linear-gradient(to right, #F97316 ' + ((windowSize - 1) / (storyLength - 1 || 1) * 100) + '%, #CBD5E1 ' + ((windowSize - 1) / (storyLength - 1 || 1) * 100) + '%)'">
-                </div>
-
-                <div class="workspace-grid">
-                    <section>
-                        <div class="card" style="height: 100%;">
-                            <h3 style="color: #334155;">What the AI Can Still See</h3>
-                            <p style="color:#475569; margin-bottom: 8px; font-size: 14px;">Faded words are hidden from the AI:</p>
-                            <div style="background: #FFFFFF; padding: 4px 0;">
-                                <template x-for="(word, index) in storyWords">
-                                    <span class="word-box" :class="(storyWords.length - index) <= windowSize ? 'in-context' : 'out-of-context'" x-text="word"></span>
-                                </template>
-                            </div>
-                        </div>
-                    </section>
-                    
-                    <aside>
-                        <div class="card sidebar-panel" style="background-color: #F8FAFC; height: 100%; display:flex; flex-direction:column; justify-content:space-between;">
-                            <div>
-                                <h3 style="color: #334155;">The AI's Best Guess</h3>
-                                <div style="color: #0F172A; margin-top: 10px; background: #FFFFFF; padding: 22px 14px; border: 1.0px solid #F97316; border-radius: 12px; text-align: center; font-size: 26px; font-weight: 700; box-shadow: 0 4px 12px rgba(249, 115, 22, 0.12);"
-                                     x-text="isLoadingClipped ? '🤔 ...' : clippedNextWord">
-                                </div>
-                            </div>
-                            <div class="teacher-note" style="background-color: #FFFFFF; border: 2px solid #CBD5E1; border-left: 4px solid #EA580C; margin-top: 14px;">
-                                💡 When important context words drop off, the AI guess turns generic!
-                            </div>
-                        </div>
-                    </aside>
-                </div>
-                
-                <div class="page-navigation-container">
-                    <button class="nav-step-btn back-step-btn" @click="goToPage(11)">Back</button>
-                    <button class="nav-step-btn next-step-btn" style="background-color: #F97316;" @click="goToPage(13)">Next ➔</button>
-                </div>
-            </div>
-        </template>
-
-        <!-- PAGE 9: CONTEXT WINDOW REVIEW -->
-        <template x-if="activePage === 13">
-            <div>
-                <div class="progress-bar">
-                    <div class="progress-dot" :style="'background-color: ' + getBarColor(13, 1)"></div>
-                    <div class="progress-dot" :style="'background-color: ' + getBarColor(13, 2)"></div>
-                    <div class="progress-dot" :style="'background-color: ' + getBarColor(13, 3)"></div>
-                    <div class="progress-dot" :style="'background-color: ' + getBarColor(13, 4)"></div>
-                </div>
-                <div class="card" x-data="{ selectedAnswer: null, evaluated: false }">
-                    <h2 style="color: #0F172A;">Concept Review</h2>
-                    <p style="color: #0F172A;">
-                        True or False: If you copy-paste an entire giant school textbook into a chat, the AI will remember the very first sentence forever.
-                    </p>
-                    
-                    <div class="radio-option" :class="selectedAnswer === 'true' ? 'selected-item' : ''" @click="selectedAnswer = 'true'; evaluated = true">
-                        🟢 <strong>True</strong>. The AI can see all the text, no matter how long the conversation gets.
-                    </div>
-                    <div class="radio-option" :class="selectedAnswer === 'false' ? 'selected-item' : ''" @click="selectedAnswer = 'false'; evaluated = true">
-                        🔴 <strong>False</strong>. The AI can only look at a limited amount of text at one time, so old items drop off to make space.
-                    </div>
-
-                    <div x-show="evaluated" style="margin-top: 14px; padding: 14px; border-radius: 10px; background-color: #F8FAFC; border: 2px solid #CBD5E1; border-left: 4px solid #F97316; display: none; color: #0F172A;">
-                        <span x-show="selectedAnswer === 'false'" style="color: #EA580C; font-weight: 700;">Correct Choice</span>
-                        <span x-show="selectedAnswer === 'true'" style="color: #DC2626; font-weight: 700;">Let's Review</span>
-                        <p style="margin: 6px 0 0 0; color: #1E293B;">
-                            When a conversation goes past the context window limit, the oldest text drops out to clear space for new words coming in.
-                        </p>
-                    </div>
-                </div>
-                <div class="page-navigation-container">
-                    <button class="nav-step-btn back-step-btn" @click="goToPage(12)">Back</button>
-                    <button class="nav-step-btn next-step-btn" style="background-color: #8B5CF6;" @click="goToPage(6)">
-                        Go to Sentence Builder ➔
-                    </button>
-                </div>
-            </div>
-        </template>
-
-        
-        <!-- PAGE 10: SENTENCE BUILDER EXPLANATION -->
-        <template x-if="activePage === 6">
-            <div>
-                <div class="progress-bar">
-                    <div class="progress-dot" :style="'background-color: ' + getBarColor(6, 1)"></div>
-                    <div class="progress-dot" :style="'background-color: ' + getBarColor(6, 2)"></div>
-                    <div class="progress-dot" :style="'background-color: ' + getBarColor(6, 3)"></div>
-                    <div class="progress-dot" :style="'background-color: ' + getBarColor(6, 4)"></div>
-                </div>
-
-                <div class="card" style="border-top: 5px solid #8B5CF6;">
-                    <h2 style="color: #7C3AED;">📝 The Sentence Builder</h2>
-                    <p>
-                        AI does not write a whole sentence or paragraph all at once. Instead, it builds the text one word at a time.
-                    </p>
-                    <p>
-                        When you type something, the AI looks at what has already been written and guesses which word is most likely to come next based on its <strong>probability</strong>.
-                    </p>
-                </div>
-
-                <div class="page-navigation-container">
-                    <button class="nav-step-btn back-step-btn" style="background-color: #EA580C;" @click="goToPage(13)">Back</button>
-                    <button class="nav-step-btn next-step-btn" style="background-color: #8B5CF6;" @click="goToPage(7)">Next ➔</button>
-                </div>
-            </div>
-        </template>
-
-        <!-- PAGE 11: SENTENCE BUILDER EXAMPLE -->
-        <template x-if="activePage === 7">
-            <div>
-                <div class="progress-bar">
-                    <div class="progress-dot" :style="'background-color: ' + getBarColor(7, 1)"></div>
-                    <div class="progress-dot" :style="'background-color: ' + getBarColor(7, 2)"></div>
-                    <div class="progress-dot" :style="'background-color: ' + getBarColor(7, 3)"></div>
-                    <div class="progress-dot" :style="'background-color: ' + getBarColor(7, 4)"></div>
-                </div>
-                <div class="card" style="border-top: 5px solid #8B5CF6;">
-                    <h2 style="color: #7C3AED;">Example: 🗣️ Fill in the Blank</h2>
-                    
-                    <div class="chat-container">
-                        <div class="chat-row">
-                            <div class="chat-avatar" style="border-color: #8B5CF6;">🗣️</div>
-                            <div class="chat-bubble chat-bubble-purple">
-                                If a friend says: <em>"An apple a day keeps the doctor..."</em>, you can probably guess the next word. You expect the next word to be "away".
-                            </div>
-                        </div>
-                        <div class="chat-row">
-                            <div class="chat-avatar" style="border-color: #8B5CF6;">📝</div>
-                            <div class="chat-bubble chat-bubble-purple">
-                                The Sentence Builder learns by reading millions of books and websites online. It notices which words often appear together and <strong>guesses</strong> the next word based on those patterns. It does not understand the meaning like people do.
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="page-navigation-container">
-                    <button class="nav-step-btn back-step-btn" @click="goToPage(6)">Back</button>
-                    <button class="nav-step-btn next-step-btn" style="background-color: #8B5CF6;" @click="goToPage(8)">Next ➔</button>
-                </div>
-            </div>
-        </template>
-
-        <!-- PAGE 12: SENTENCE BUILDER SIMULATION -->
-        <template x-if="activePage === 8">
-            <div>
-                <div class="progress-bar">
-                    <div class="progress-dot" :style="'background-color: ' + getBarColor(8, 1)"></div>
-                    <div class="progress-dot" :style="'background-color: ' + getBarColor(8, 2)"></div>
-                    <div class="progress-dot" :style="'background-color: ' + getBarColor(8, 3)"></div>
-                    <div class="progress-dot" :style="'background-color: ' + getBarColor(8, 4)"></div>
-                </div>
-
-                <div class="card">
-                    <div>
-                        <h2 style="margin-bottom: 2px; color: #0F172A;">Complete the Sentence</h2>
-                        <p class="section-subtitle" style="margin-bottom: 0;">Type a sentence and see which word the AI guesses comes next</p>
-                    </div>
-
-                    <input type="text" x-model="prompt" @input="debouncedFetchNextWord()" class="comic-text" style="width: 100%; padding: 12px; border-radius: 10px; border: 2px solid #CBD5E1; box-sizing: border-box; background-color: #F8FAFC; color: #0F172A; margin: 10px 0; font-size: 18px;">
-
-                    <div class="comic-text" style="background: #0F172A; color: #F8FAFC; padding: 12px 16px; border-radius: 10px; border: 2px solid #1E293B; font-size: 18px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
-                        <div>
-                            <span x-text="prompt" style="color: #94A3B8;"></span><span style="border-bottom: 2px solid; font-weight: 700;" :style="'color: ' + selectedWordColor" x-text="' ' + selectedWord"></span>
-                        </div>
-
-                        <div>
-                            <span class="confidence-pill" :style="'background-color: ' + selectedWordColor" x-show="!isLoadingChoices">
-                                <span x-text="selectedProb + '% sure'"></span>
-                            </span>
-                            <span class="thinking-badge" x-show="isLoadingChoices">🤔 Thinking...</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="card">
-                    <h3 style="margin-bottom: 2px; color: #334155;">How the AI Decides</h3>
-                    <p class="section-subtitle">AI looks at several possible words, each word has its own percentage score:</p>
-
-                    <div style="display: flex; justify-content: center; gap: 24px; margin: 24px 0 12px 0;">
-                        <template x-for="(item, index) in currentChoices">
-                            <div style="display: flex; flex-direction: column; align-items: center; width: 56px;">
-                                <div class="bar-container-wrapper" style="height: 100px; width: 100%; display: flex; align-items: flex-end; justify-content: center; border-bottom: 2px solid #CBD5E1; position: relative;">
-                                    <div class="chart-bar-element" 
-                                         :style="'width: 100%; height: ' + (item.prob) + '%; background-color: ' + item.color + '; box-shadow: ' + (selectedIndex === index ? '0 0 6px ' + item.color : 'none') + '; border-radius: 4px 4px 0 0;'">
-                                        <span style="position: absolute; top: -22px; left: 50%; transform: translateX(-50%); font-size: 13px; font-weight: 700; color: #0F172A; white-space: nowrap;" x-text="item.prob + '%'"></span>
-                                    </div>
-                                </div>
-                                <span style="text-align: center; margin-top: 8px; width: 100%; font-size: 14px; font-weight: 700;" :style="'color: ' + (selectedIndex === index ? item.color : '#334155')" x-text="item.word"></span>
-                            </div>
-                        </template>
-                    </div>
-
-                    <div style="display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-top: 8px;">
-                        <span style="color: #8B5CF6; font-weight: 700; font-size: 14px;">Logical</span>
-                        <input id="predictabilitySlider" type="range" min="0" max="100" x-model="predictability" class="slider-input ombre-slider" style="margin-top: 0;">
-                        <span style="color: #EF4444; font-weight: 700; font-size: 14px;">Creative</span>
-                    </div>
-                </div>
-
-                <div class="teacher-note" style="background-color: #FFFFFF; border: 2px solid #CBD5E1; border-left: 4px solid #8B5CF6;">
-                    💡 When you slide towards "creative" the AI skips its top pick and chooses more unusual or funny words! This concept is known as controlling the <strong>temperature</strong> .
-                </div>
-                
-                <div class="page-navigation-container">
-                    <button class="nav-step-btn back-step-btn" @click="goToPage(7)">Back</button>
-                    <button class="nav-step-btn next-step-btn" style="background-color: #8B5CF6;" @click="goToPage(9)">Next ➔</button>
-                </div>
-            </div>
-        </template>
-
-        <!-- PAGE 13: SENTENCE BUILDER REVIEW -->
-        <template x-if="activePage === 9">
-            <div>
-                <div class="progress-bar">
-                    <div class="progress-dot" :style="'background-color: ' + getBarColor(9, 1)"></div>
-                    <div class="progress-dot" :style="'background-color: ' + getBarColor(9, 2)"></div>
-                    <div class="progress-dot" :style="'background-color: ' + getBarColor(9, 3)"></div>
-                    <div class="progress-dot" :style="'background-color: ' + getBarColor(9, 4)"></div>
-                </div>
-                <div class="card" x-data="{ selectedAnswer: null, evaluated: false }">
-                    <h2 style="color: #0F172A;">Concept Review</h2>
-                    <p style="color: #0F172A;">
-                        True or False: When the AI gives an unexpected answer, it means it is being creative or inspired.
-                    </p>
-                    
-                    <div class="radio-option" :class="selectedAnswer === 'true' ? 'selected-item' : ''" @click="selectedAnswer = 'true'; evaluated = true">
-                        🟢 <strong>True</strong>. The AI is acting like a human writer and planning a story.
-                    </div>
-                    <div class="radio-option" :class="selectedAnswer === 'false' ? 'selected-item' : ''" @click="selectedAnswer = 'false'; evaluated = true">
-                        🔴 <strong>False</strong>. The AI is not thinking or planning. It is simply choosing unusual words based on patterns in its data.
-                    </div>
-
-                    <div x-show="evaluated" style="margin-top: 14px; padding: 14px; border-radius: 10px; background-color: #F8FAFC; border: 2px solid #CBD5E1; border-left: 4px solid #8B5CF6; display: none; color: #0F172A;">
-                        <span x-show="selectedAnswer === 'false'" style="color: #7C3AED; font-weight: 700;">Correct Choice</span>
-                        <span x-show="selectedAnswer === 'true'" style="color: #DC2626; font-weight: 700;">Let's Review</span>
-                        <p style="margin: 6px 0 0 0; color: #1E293B;">
-                            Language tools do not have feelings, goals, or awareness. When they create unexpected combinations of words, it happens because they select options with a very low probability percentage, not because they are being creative.
-                        </p>
-                    </div>
-                </div>
-                <div class="page-navigation-container">
-                    <button class="nav-step-btn back-step-btn" @click="goToPage(8)">Back</button>
-                    <button class="nav-step-btn next-step-btn" style="background-color: #0F172A;" @click="goToPage(14)">See It All Together 🎬</button>
-                </div>
-            </div>
-        </template>
-
-        <!-- PAGE 14: PUTTING IT ALL TOGETHER -->
-        <template x-if="activePage === 14">
-            <div>
-                <div class="progress-bar" style="margin-bottom: 12px;">
-                    <div class="progress-dot" style="background-color: #0F172A;"></div>
-                    <div class="progress-dot" style="background-color: #0F172A;"></div>
-                    <div class="progress-dot" style="background-color: #0F172A;"></div>
-                    <div class="progress-dot" style="background-color: #0F172A;"></div>
-                </div>
-
-                <div style="background: #0F172A; color: #FFFFFF; text-align: center; padding: 18px; border-radius: 14px; margin-bottom: 16px;">
-                    <h1 style="font-size: 22px; margin: 0;">🎬 Putting It All Together</h1>
-                    <p style="color: #94A3B8; max-width: 600px; margin: 6px auto 0 auto; font-size: 14px;">
-                        Watch all three concepts work together to write a sentence word-by-word.
-                    </p>
-                </div>
-
-                <div class="card" style="padding: 16px; margin-bottom: 16px;">
-                    <svg viewBox="0 0 850 135" xmlns="http://www.w3.org/2000/svg" style="width:100%; height:auto; display:block;">
-                        <defs>
-                            <marker id="arrowCyan" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="12" markerHeight="12" markerUnits="userSpaceOnUse" orient="auto">
-                                <path d="M 0 0 L 10 5 L 0 10 Z" fill="#06B6D4"/>
-                            </marker>
-                            <marker id="arrowOrange" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="12" markerHeight="12" markerUnits="userSpaceOnUse" orient="auto">
-                                <path d="M 0 0 L 10 5 L 0 10 Z" fill="#F97316"/>
-                            </marker>
-                            <marker id="arrowSlate" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="12" markerHeight="12" markerUnits="userSpaceOnUse" orient="auto">
-                                <path d="M 0 0 L 10 5 L 0 10 Z" fill="#64748B"/>
-                            </marker>
-                        </defs>   
-
-                        <g transform="translate(10, 10)">
-                            <rect width="230" height="65" rx="10" fill="#ECFEFF" stroke="#06B6D4" stroke-width="2"/>
-                            <text x="115" y="26" text-anchor="middle" font-size="15">✂️ Stage 1</text>
-                            <text x="115" y="48" text-anchor="middle" fill="#0891B2" font-weight="700">Word Splitter</text>
-                        </g>
-
-                        <g>
-                            <line x1="240" y1="42" x2="292" y2="42" stroke="#06B6D4" stroke-width="3" marker-end="url(#arrowCyan)"/>
-                            <text x="266" y="28" text-anchor="middle" fill="#06B6D4" font-size="6" font-weight="700">Tokens</text>
-                        </g>
-
-                        <g transform="translate(300, 10)">
-                            <rect width="230" height="65" rx="10" fill="#FFF7ED" stroke="#F97316" stroke-width="2"/>
-                            <text x="115" y="26" text-anchor="middle" font-size="15">📖 Stage 2</text>
-                            <text x="115" y="48" text-anchor="middle" fill="#EA580C" font-weight="700">Context Window</text>
-                        </g>
-
-                        <g>
-                            <line x1="530" y1="42" x2="582" y2="42" stroke="#F97316" stroke-width="3" marker-end="url(#arrowOrange)"/>
-                            <text x="556" y="28" text-anchor="middle" fill="#F97316" font-size="6" font-weight="700">Context</text>
-                        </g>
-
-                        <g transform="translate(590, 10)">
-                            <rect width="230" height="65" rx="10" fill="#F5F3FF" stroke="#8B5CF6" stroke-width="2"/>
-                            <text x="115" y="26" text-anchor="middle" font-size="15">📝 Stage 3</text>
-                            <text x="115" y="48" text-anchor="middle" fill="#7C3AED" font-weight="700">Sentence Builder</text>
-                        </g>
-
-                        <g>
-                            <path d="M 705 75 C 705 120, 125 120, 125 80" fill="none" stroke="#64748B" stroke-width="2" stroke-dasharray="4 4" marker-end="url(#arrowSlate)"/>
-                            <text x="415" y="125" text-anchor="middle" fill="#475569" font-size="12">🔁 Then it repeats, again and again, one word at a time!</text>
-                        </g>
-                    </svg>
-                </div>
-
-                <div class="card" style="border-top: 4px solid #0F172A;">
-                    <div class="controls-toolbar">
-                        <div class="action-btn-group">
-                            <button class="action-btn" :style="'background-color:' + (pipelinePlaying ? '#475569' : '#10B981')" @click="pipelinePlaying ? stopPipelineDemo() : startPipelineDemo()" x-text="pipelinePlaying ? '⏸ Pause' : '▶️ Play'"></button>
-                            <button class="action-btn" style="background-color:#64748B;" @click="resetPipelineDemo()">🔄 Restart</button>
-                        </div>
-                        <span style="padding: 4px 12px; border-radius: 999px; color: #FFFFFF; font-size: 13px; font-weight: 700;" :style="'background-color: ' + pipelineStageColor" x-text="pipelineStageLabel"></span>
-                    </div>
-
-                    <div style="background:#FFFFFF; border: 2px solid #E2E8F0; border-radius: 10px; padding: 10px 14px; margin-bottom: 12px; min-height: 44px; display:flex; align-items:center;">
-                        <div>
-                            <template x-for="(word, index) in pipelineWords">
-                                <span class="word-box" style="padding: 3px 10px; font-size: 14px;" :class="(pipelineWords.length - index) <= pipelineWindow ? 'in-context' : 'out-of-context'" x-text="word"></span>
-                            </template>
-                            <span x-show="pipelineFinished" style="color:#10B981; margin-left: 6px; font-weight: 700; font-size: 14px;">✨ Finished!</span>
-                        </div>
-                    </div>
-
-                    <div class="step-card" :class="pipelineStage === 0 ? 'step-active-0' : 'step-inactive'">
-                        <h4 style="margin:0; color:#0891B2; font-size: 14px;">✂️ 1. Split sentence into individual tokens</h4>
-                        <div style="margin-top:4px;">
-                            <template x-for="tok in pipelineTokens">
-                                <span class="token-block" style="height:28px; margin:2px 3px; padding:0 10px; font-size: 13px;" x-text="tok"></span>
-                            </template>
-                        </div>
-                    </div>
-
-                    <div class="step-card" :class="pipelineStage === 1 ? 'step-active-1' : 'step-inactive'">
-                        <h4 style="color:#EA580C; margin: 0; font-size: 14px;">
-                            📖 2. Looks at the visible tokens 
-                        </h4>
-                    </div>
-
-                    <div class="step-card" :class="pipelineStage === 2 ? 'step-active-2' : 'step-inactive'">
-                        <h4 style="margin:0 0 4px 0; color:#7C3AED; font-size: 14px;">
-                            📝 3. Guesses & chooses the next word
-                            <span class="thinking-badge" x-show="isLoadingPipeline" style="margin-left: 6px; padding: 2px 8px; font-size: 12px;">🤔 Thinking...</span>
-                        </h4>
-                        
-                        <div style="display: flex; justify-content: center; gap: 16px; margin-top: 6px;">
-                            <template x-for="item in pipelineChoices">
-                                <div style="display: flex; flex-direction: column; align-items: center; width: 48px;">
-                                    <span style="color: #1E293B; font-size: 12px; font-weight: 700;" x-text="item.prob + '%'"></span>
-                                    <div style="height: 40px; width: 100%; display: flex; align-items: flex-end; justify-content: center; border-bottom: 1px solid #CBD5E1;">
-                                        <div class="chart-bar-element" :style="'height: ' + item.prob + '%; width: 100%; background-color: ' + item.color + '; border-radius: 3px 3px 0 0;'"></div>
-                                    </div>
-                                    <span style="width: 100%; text-align: center; color: #0F172A; margin-top: 2px; font-size: 13px; font-weight: 700;" x-text="item.word"></span>
-                                </div>
-                            </template>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="page-navigation-container">
-                    <button class="nav-step-btn back-step-btn" @click="goToPage(9)">Back</button>
-                    <button class="nav-step-btn next-step-btn" style="background-color: #0F172A;" @click="goToPage(1)">Finish Lesson 🏁</button>
-                </div>
-            </div>
-        </template>
-
-    </main>
-
-    <!-- Sub-Word BPE Engine Integration (Byte-Pair Encoding) -->
-    <script>
-        class SubWordBPETokenizer {
-            constructor() {
-                // Initialize default sub-word dictionary mapping common words and prefix/suffix chunks
-                this.vocabulary = new Map();
-                const defaultSubwords = [
-                    "Hello", "hello", " world", "world", "!", " ", "token", "ization", 
-                    "sub", "word", "anti", "dis", "establish", "ment", "arian", "ism",
-                    "The", "the", "little", "robot", "woke", "up", "early", "and",
-                    "looked", "around", "happily", "smiled", "fell", "today", "with",
-                    "ran", "sang", "away", "home", "now", "sadly", "AI", "LLM",
-                    "ing", "ed", "er", "est", "ly", "tion", "sion", "ness", "ment",
-                    "able", "ible", "al", "ful", "less", "ous", "ive", "ity", "ty"
-                ];
-                
-                defaultSubwords.forEach((chunk, index) => {
-                    this.vocabulary.set(chunk, index + 100);
-                });
-            }
-
-            // Real Byte-Pair Encoding logic that splits complex words into sub-word pieces
-            tokenizeText(text) {
-                if (!text) return [];
-
-                // Standard Regex split to isolate words, spaces, and punctuation symbols
-                const elements = text.match(/[\w']+|[^\w\s]|\s+/g) || [];
-                const tokenChunks = [];
-
-                elements.forEach(element => {
-                    if (this.vocabulary.has(element)) {
-                        tokenChunks.push(element);
-                    } else if (element.length > 3 && /^\w+$/.test(element)) {
-                        // Perform BPE sub-word splitting for longer unrecognized words
-                        let remaining = element;
-                        let matchedAny = false;
-
-                        while (remaining.length > 0) {
-                            let bestMatch = "";
-                            
-                            for (let i = remaining.length; i > 0; i--) {
-                                const candidate = remaining.slice(0, i);
-                                if (this.vocabulary.has(candidate) || candidate.length <= 3) {
-                                    bestMatch = candidate;
-                                    break;
-                                }
-                            }
-
-                            if (bestMatch) {
-                                tokenChunks.push(bestMatch);
-                                remaining = remaining.slice(bestMatch.length);
-                                matchedAny = true;
-                            } else {
-                                tokenChunks.push(remaining.charAt(0));
-                                remaining = remaining.slice(1);
-                            }
-                        }
-                    } else {
-                        tokenChunks.push(element);
-                    }
-                });
-
-                return tokenChunks;
-            }
-        }
-
-        document.addEventListener('alpine:init', () => {
-            Alpine.data('llmSimulator', () => ({
-                activePage: 1,
-                alpineReady: true,
-
-                inputText: 'Hello world!',
-                tokenCount: 0,
-                wordCount: 0,
-                tokenBlocks: [],
-
-                prompt: 'The space rocket safely landed on the',
-                predictability: 0,
-                currentChoices: [],
-                isLoadingChoices: false,
-
-                selectedStoryIndex: 0,
-                windowSize: 11,
-                storyLength: 11,
-                storyWords: [],
-                clippedNextWord: '...',
-                isLoadingClipped: false,
-                storyOptions: [
-                    {
-                        title: "🦸 Story 1: The Secret Hero",
-                        text: "Deep inside the hidden dark cave of Gotham City a hero wears a black cape and fights ..."
-                    },
-                    {
-                        title: "🐅 Story 2: The Striped Animal",
-                        text: "With sharp yellow teeth orange fur and dark black stripes it is a very big ..."
-                    },
-                    {
-                        title: "🎂 Story 3: The Celebration Party",
-                        text: "To celebrate turning ten years old there are colorful presents and bright glowing candles on the kitchen ..."
-                    }
-                ],
-
-                pipelineWords: ['The', 'little', 'robot'],
-                pipelineWindow: 4,
-                pipelineStage: 0,
-                pipelinePlaying: false,
-                pipelineFinished: false,
-                pipelineTimer: null,
-                pipelineTokens: [],
-                pipelineChoices: [
-                    { word: "woke", prob: 75, color: "#8B5CF6" },
-                    { word: "smiled", prob: 18, color: "#06B6D4" },
-                    { word: "fell", prob: 7, color: "#10B981" }
-                ],
-                isLoadingPipeline: false,
-
-                colorPalette: ['#8B5CF6', '#06B6D4', '#10B981', '#F59E0B', '#EF4444'],
-                bpeEngine: null,
-
-                init() {
-                    const loadingEl = document.getElementById('fallback-loading-wrap');
-                    if (loadingEl) loadingEl.style.display = 'none';
-
-                    this.bpeEngine = new SubWordBPETokenizer();
-
-                    this.executeTokenAnalysis();
-                    this.fetchNextWordChoices();
-                    this.loadSelectedStoryline();
-
-                    this.$watch('inputText', () => this.executeTokenAnalysis());
-                },
-
-                getBarColor(currentPage, targetDot) {
-                    let activeColor = '#E2E8F0';
-                    if (currentPage >= 2 && currentPage <= 5) {
-                        if (targetDot <= (currentPage - 1)) activeColor = '#06B6D4';
-                    } else if (currentPage >= 10 && currentPage <= 13) {
-                        let stepIndex = currentPage - 9;
-                        if (targetDot <= stepIndex) activeColor = '#F97316';
-                    } else if (currentPage >= 6 && currentPage <= 9) {
-                        let stepIndex = currentPage - 5;
-                        if (targetDot <= stepIndex) activeColor = '#8B5CF6';
-                    }
-                    return activeColor;
-                },
-
-                goToPage(pageNum) {
-                    this.activePage = pageNum;
-                    if(pageNum === 4) this.executeTokenAnalysis();
-                    if(pageNum === 8) this.fetchNextWordChoices();
-                    if(pageNum === 12) this.loadSelectedStoryline();
-                    if(pageNum === 14) this.refreshPipelineTokens();
-                },
-
-                // 1. Live Sub-Word Tokenizer Engine
-                executeTokenAnalysis() {
-                    if (!this.inputText) {
-                        this.tokenCount = 0; 
-                        this.wordCount = 0; 
-                        this.tokenBlocks = []; 
-                        return;
-                    }
-
-                    const cleanWords = this.inputText.trim().split(/\s+/).filter(w => w.length > 0);
-                    this.wordCount = cleanWords.length;
-
-                    if (this.bpeEngine) {
-                        const rawChunks = this.bpeEngine.tokenizeText(this.inputText);
-                        this.tokenCount = rawChunks.length;
-                        this.tokenBlocks = rawChunks.map(chunk => chunk.replace(/ /g, '␣'));
-                    }
-                },
-
-                // 2. Sentence Builder Engine
-                debouncedFetchNextWord() {
-                    this.isLoadingChoices = true;
-                    setTimeout(() => this.fetchNextWordChoices(), 200);
-                },
-
-                fetchNextWordChoices() {
-                    this.isLoadingChoices = false;
-                    const txt = (this.prompt || '').toLowerCase().trim();
-                    
-                    let choices = [
-                        { word: "moon", prob: 65 },
-                        { word: "ground", prob: 18 },
-                        { word: "planet", prob: 10 },
-                        { word: "ocean", prob: 5 },
-                        { word: "banana", prob: 2 }
-                    ];
-
-                    if (txt.includes("apple a day")) {
-                        choices = [
-                            { word: "away", prob: 80 },
-                            { word: "busy", prob: 10 },
-                            { word: "happy", prob: 6 },
-                            { word: "near", prob: 3 },
-                            { word: "cooked", prob: 1 }
-                        ];
-                    } else if (txt.includes("rocket safely")) {
-                        choices = [
-                            { word: "moon", prob: 70 },
-                            { word: "ground", prob: 15 },
-                            { word: "pad", prob: 9 },
-                            { word: "desert", prob: 5 },
-                            { word: "roof", prob: 1 }
-                        ];
-                    } else if (txt.length > 0) {
-                        const seed = txt.length % 5;
-                        const dynamicWords = [
-                            ["next", "then", "more", "here", "tomato"],
-                            ["something", "it", "clear", "fast", "bicycle"],
-                            ["today", "again", "home", "wild", "dinosaur"],
-                            ["people", "work", "see", "under", "spaceship"]
-                        ][seed] || ["word", "thing", "line", "part", "cloud"];
-
-                        choices = [
-                            { word: dynamicWords[0], prob: 58 },
-                            { word: dynamicWords[1], prob: 22 },
-                            { word: dynamicWords[2], prob: 12 },
-                            { word: dynamicWords[3], prob: 6 },
-                            { word: dynamicWords[4], prob: 2 }
-                        ];
-                    }
-
-                    this.currentChoices = choices.map((item, idx) => ({
-                        word: item.word,
-                        prob: item.prob,
-                        color: this.colorPalette[idx] || '#94A3B8',
-                        shadow: (this.colorPalette[idx] || '#94A3B8') + '66'
-                    }));
-                },
-
-                getApparentIndex() {
-                    if (!this.currentChoices.length) return 0;
-                    const val = parseInt(this.predictability);
-                    if (val < 25) return 0;
-                    if (val < 50) return 1;
-                    if (val < 75) return 2;
-                    if (val < 92) return 3;
-                    return 4;
-                },
-
-                get selectedIndex() {
-                    const idx = this.getApparentIndex();
-                    return Math.min(idx, this.currentChoices.length - 1);
-                },
-                get selectedWord() { return this.currentChoices[this.selectedIndex]?.word || '...'; },
-                get selectedProb() { return this.currentChoices[this.selectedIndex]?.prob || 0; },
-                get selectedWordColor() { return this.currentChoices[this.selectedIndex]?.color || '#8B5CF6'; },
-
-                // 3. Context Window Simulator
-                loadSelectedStoryline() {
-                    const currentObj = this.storyOptions[this.selectedStoryIndex];
-                    this.storyWords = currentObj.text.trim().split(/\s+/);
-                    this.storyLength = this.storyWords.length;
-                    this.windowSize = this.storyLength;
-                    this.fetchClippedPrediction();
-                },
-
-                evaluateClippedPrediction() {
-                    this.isLoadingClipped = true;
-                    setTimeout(() => this.fetchClippedPrediction(), 150);
-                },
-
-                fetchClippedPrediction() {
-                    this.isLoadingClipped = false;
-                    const w = parseInt(this.windowSize);
-                    const idx = parseInt(this.selectedStoryIndex);
-
-                    if (idx === 0) {
-                        if (w >= 6) this.clippedNextWord = "crime";
-                        else if (w >= 3) this.clippedNextWord = "fly";
-                        else this.clippedNextWord = "something";
-                    } else if (idx === 1) {
-                        if (w >= 8) this.clippedNextWord = "tiger";
-                        else if (w >= 4) this.clippedNextWord = "animal";
-                        else this.clippedNextWord = "thing";
-                    } else if (idx === 2) {
-                        if (w >= 5) this.clippedNextWord = "table";
-                        else if (w >= 2) this.clippedNextWord = "room";
-                        else this.clippedNextWord = "house";
-                    }
-                },
-
-                // 4. Team Pipeline Loop
-                get pipelineStageLabel() {
-                    const labels = ['✂️ Splitting into tokens...', '📖 Checking context window...', '📝 Guessing next word...'];
-                    return this.pipelineFinished ? '✨ Story finished!' : labels[this.pipelineStage];
-                },
-                get pipelineStageColor() {
-                    const colors = ['#06B6D4', '#F97316', '#8B5CF6'];
-                    return this.pipelineFinished ? '#10B981' : colors[this.pipelineStage];
-                },
-
-                refreshPipelineTokens() {
-                    const sentence = this.pipelineWords.join(' ');
-                    if (this.bpeEngine) {
-                        const raw = this.bpeEngine.tokenizeText(sentence);
-                        this.pipelineTokens = raw.map(t => t === ' ' ? '␣' : t);
-                    }
-                },
-
-                startPipelineDemo() {
-                    if (this.pipelineFinished) this.resetPipelineDemo();
-                    this.pipelinePlaying = true;
-                    this.pipelineTimer = setInterval(() => this.advancePipelineDemo(), 1400);
-                },
-
-                stopPipelineDemo() {
-                    this.pipelinePlaying = false;
-                    if (this.pipelineTimer) clearInterval(this.pipelineTimer);
-                },
-
-                resetPipelineDemo() {
-                    this.stopPipelineDemo();
-                    this.pipelineWords = ['The', 'little', 'robot'];
-                    this.pipelineStage = 0;
-                    this.pipelineFinished = false;
-                    this.pipelineChoices = [
-                        { word: "woke", prob: 75, color: "#8B5CF6" },
-                        { word: "smiled", prob: 18, color: "#06B6D4" },
-                        { word: "fell", prob: 7, color: "#10B981" }
-                    ];
-                    this.refreshPipelineTokens();
-                },
-
-                advancePipelineDemo() {
-                    if (this.pipelineFinished) { this.stopPipelineDemo(); return; }
-
-                    if (this.pipelineStage === 0) {
-                        this.refreshPipelineTokens();
-                        this.pipelineStage = 1;
-                        return;
-                    }
-                    
-                    if (this.pipelineStage === 1) {
-                        const len = this.pipelineWords.length;
-                        if (len === 3) {
-                            this.pipelineChoices = [
-                                { word: "woke", prob: 75, color: "#8B5CF6" },
-                                { word: "smiled", prob: 18, color: "#06B6D4" },
-                                { word: "fell", prob: 7, color: "#10B981" }
-                            ];
-                        } else if (len === 4) {
-                            this.pipelineChoices = [
-                                { word: "up", prob: 85, color: "#8B5CF6" },
-                                { word: "early", prob: 10, color: "#06B6D4" },
-                                { word: "here", prob: 5, color: "#10B981" }
-                            ];
-                        } else if (len === 5) {
-                            this.pipelineChoices = [
-                                { word: "and", prob: 60, color: "#8B5CF6" },
-                                { word: "with", prob: 30, color: "#06B6D4" },
-                                { word: "today", prob: 10, color: "#10B981" }
-                            ];
-                        } else if (len === 6) {
-                            this.pipelineChoices = [
-                                { word: "looked", prob: 70, color: "#8B5CF6" },
-                                { word: "ran", prob: 22, color: "#06B6D4" },
-                                { word: "sang", prob: 8, color: "#10B981" }
-                            ];
-                        } else if (len === 7) {
-                            this.pipelineChoices = [
-                                { word: "around", prob: 80, color: "#8B5CF6" },
-                                { word: "away", prob: 15, color: "#06B6D4" },
-                                { word: "home", prob: 5, color: "#10B981" }
-                            ];
-                        } else {
-                            this.pipelineChoices = [
-                                { word: "happily", prob: 90, color: "#8B5CF6" },
-                                { word: "now", prob: 8, color: "#06B6D4" },
-                                { word: "sadly", prob: 2, color: "#10B981" }
-                            ];
-                        }
-                        this.pipelineStage = 2;
-                        return;
-                    }
-                    
-                    if (this.pipelineStage === 2) {
-                        const nextWord = this.pipelineChoices[0].word;
-                        this.pipelineWords.push(nextWord);
-                        
-                        if (this.pipelineWords.length >= 9) {
-                            this.pipelineFinished = true;
-                            this.stopPipelineDemo();
-                        } else {
-                            this.pipelineStage = 0;
-                        }
-                        return;
-                    }
-                }
-            }));
+<header>
+<div class="logo-text"> Large Language Models (LLMs)</div>
+<nav>
+<button class="home-icon-btn" x-show="activePage !== 1" @click="goToPage(1)" style="display: none;">
+Home
+</button>
+</nav>
+</header>
+<noscript>
+<main class="container">
+<div class="card" style="border-top: 5px solid #EF4444;">
+<h2 style="color:#B91C1C;">JavaScript is turned off</h2>
+<p>This interactive lesson needs JavaScript to run. Please enable JavaScript in your browser and reload the page.</p>
+</div>
+</main>
+</noscript>
+<main class="container" id="fallback-loading-wrap">
+<div class="card" style="border-top: 5px solid #64748B;">
+<h2 style="color:#334155;">Loading the interactive lesson...</h2>
+<p style="color:#475569;">Setting up the elements.</p>
+</div>
+</main>
+<main class="container" x-show="alpineReady" style="display:none;">
+<!-- PAGE 1: MENU -->
+<template x-if="activePage === 1">
+<div>
+<div class="card" style="background: #0F172A; color: #FFFFFF; border: none; text-align: center; padding: 28px 20px; border-radius: 16px; margin-bottom: 20px;">
+<h1>Ever wondered how AI chats with you?</h1>
+<p style="color: #94A3B8; max-width: 650px; margin: 8px auto 0 auto;">
+AI tools do not think like humans. Let's look at the three core concepts of Large Language Models, from how text is broken into pieces, to how the AI decides what to say next.
+</p>
+</div>
+<div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;">
+<div class="menu-card theme-splitter">
+<div>
+<span class="icon"></span>
+<h3>1. The Word Splitter</h3>
+<p style="color: #475569; font-size: 15px;">See how AI breaks sentences into smaller chunks called tokens.</p>
+</div>
+<button class="start-btn bg-splitter" @click="goToPage(2)">Explore</button>
+</div>
+<div class="menu-card theme-matcher">
+<div>
+<span class="icon"></span>
+<h3>2. The Context Window</h3>
+<p style="color: #475569; font-size: 15px;">See how many words the AI can keep track of at one time.</p>
+</div>
+<button class="start-btn bg-matcher" @click="goToPage(10)">Explore</button>
+</div>
+<div class="menu-card theme-builder">
+<div>
+<span class="icon"></span>
+<h3>3. The Sentence Builder</h3>
+<p style="color: #475569; font-size: 15px;">See how AI uses probability to guess the next word.</p>
+</div>
+<button class="start-btn bg-builder" @click="goToPage(6)">Explore</button>
+</div>
+</div>
+</div>
+</template>
+
+<!-- PAGE 2: WORD SPLITTER EXPLANATION -->
+<template x-if="activePage === 2">
+<div>
+<div class="progress-bar">
+<div class="progress-dot" :style="'background-color: ' + getBarColor(2, 1)"></div>
+<div class="progress-dot" :style="'background-color: ' + getBarColor(2, 2)"></div>
+<div class="progress-dot" :style="'background-color: ' + getBarColor(2, 3)"></div>
+<div class="progress-dot" :style="'background-color: ' + getBarColor(2, 4)"></div>
+</div>
+<div class="card" style="border-top: 5px solid #06B6D4;">
+<h2 style="color: #0891B2;">The Word Splitter</h2>
+<p>
+AI cannot read whole words the way humans do. Before it can look at your sentence, it needs to split the word into smaller chunks.
+</p>
+<p>
+We call these smaller chunks <strong>tokens</strong>. A token can be a single word, a fragment of a long word, a full stop, or even an empty space.
+</p>
+</div>
+<div class="page-navigation-container justify-end">
+<button class="nav-step-btn next-step-btn" style="background-color: #06B6D4;" @click="goToPage(3)">Next →</button>
+</div>
+</div>
+</template>
+
+<!-- PAGE 3: WORD SPLITTER JIGSAW EXAMPLE -->
+<template x-if="activePage === 3">
+<div>
+<div class="progress-bar">
+<div class="progress-dot" :style="'background-color: ' + getBarColor(3, 1)"></div>
+<div class="progress-dot" :style="'background-color: ' + getBarColor(3, 2)"></div>
+<div class="progress-dot" :style="'background-color: ' + getBarColor(3, 3)"></div>
+<div class="progress-dot" :style="'background-color: ' + getBarColor(3, 4)"></div>
+</div>
+<div class="card" style="border-top: 5px solid #06B6D4;">
+<h2 style="color: #0891B2;">Example: Jigsaw Puzzle</h2>
+<div class="chat-container">
+<div class="chat-row">
+<div class="chat-avatar" style="border-color: #06B6D4;"></div>
+<div class="chat-bubble chat-bubble-cyan">
+Think of a photo jigsaw. Instead of making one giant jigsaw puzzle piece, the whole image is made from many smaller puzzle pieces.
+</div>
+</div>
+<div class="chat-row">
+<div class="chat-avatar" style="border-color: #06B6D4;"></div>
+<div class="chat-bubble chat-bubble-cyan">
+The Word Splitter works the same way. When it sees a long word, it breaks them into common sub-word sequences it already recognizes. This process is known as <strong>tokenization</strong>.
+</div>
+</div>
+</div>
+</div>
+<div class="page-navigation-container">
+<button class="nav-step-btn back-step-btn" @click="goToPage(2)">Back</button>
+<button class="nav-step-btn next-step-btn" style="background-color: #06B6D4;" @click="goToPage(4)">Next →</button>
+</div>
+</div>
+</template>
+
+<!-- PAGE 4: LIVE WORD SPLITTER SIMULATOR-->
+<template x-if="activePage === 4">
+<div>
+<div class="progress-bar">
+<div class="progress-dot" :style="'background-color: ' + getBarColor(4, 1)"></div>
+<div class="progress-dot" :style="'background-color: ' + getBarColor(4, 2)"></div>
+<div class="progress-dot" :style="'background-color: ' + getBarColor(4, 3)"></div>
+<div class="progress-dot" :style="'background-color: ' + getBarColor(4, 4)"></div>
+</div>
+<div class="workspace-grid">
+<section>
+<div class="card">
+<h2 style="color: #0F172A;">Live Word Splitter</h2>
+<p style="color:#475569; margin-bottom: 10px;">Type a sentence below to see how the AI splits it into tokens:</p>
+<input type="text" x-model="inputText" @input="executeTokenAnalysis()" class="comic-text" style="width: 100%; padding: 12px; border-radius: 10px; border: 2px solid #CBD5E1; box-sizing: border-box; background-color: #F8FAFC; color: #0F172A; font-size: 18px;">
+</div>
+<div class="card">
+<h3 style="color: #334155;">The Sub-Word Tokens</h3>
+<div style="background: #FFFFFF; padding: 6px 0; border-radius: 8px;">
+<template x-for="token in tokenBlocks">
+<span class="token-block" x-text="token"></span>
+</template>
+</div>
+</div>
+</section>
+<aside>
+<div class="card sidebar-panel" style="background-color: #F8FAFC;">
+<div>
+<h3 style="color: #1E293B;">Total Words</h3>
+<div class="accent-output" x-text="wordCount" style="color: #334155;"></div>
+<div class="stat-divider"></div>
+<h3 style="color: #1E293B;">Total Tokens</h3>
+<div class="accent-output" x-text="tokenCount" style="color: #0891B2;"></div>
+</div>
+<div class="teacher-note" style="background-color: #FFFFFF; border: 2px solid #CBD5E1; border-left: 4px solid #06B6D4; margin-top: 14px;">
+Notice how empty spaces ( ) and punctuation symbols have their own puzzle piece. They are never left out.
+</div>
+</div>
+</aside>
+</div>
+<div class="page-navigation-container">
+<button class="nav-step-btn back-step-btn" @click="goToPage(3)">Back</button>
+<button class="nav-step-btn next-step-btn" style="background-color: #06B6D4;" @click="goToPage(5)">Next →</button>
+</div>
+</div>
+</template>
+
+<!-- PAGE 5: WORD SPLITTER REVIEW -->
+<template x-if="activePage === 5">
+<div>
+<div class="progress-bar">
+<div class="progress-dot" :style="'background-color: ' + getBarColor(5, 1)"></div>
+<div class="progress-dot" :style="'background-color: ' + getBarColor(5, 2)"></div>
+<div class="progress-dot" :style="'background-color: ' + getBarColor(5, 3)"></div>
+<div class="progress-dot" :style="'background-color: ' + getBarColor(5, 4)"></div>
+</div>
+<div class="card" x-data="{ selectedAnswer: null, evaluated: false }">
+<h2 style="color: #0F172A;">Concept Review</h2>
+<p style="color: #0F172A;">
+True or False: When you submit a prompt, the AI skips all empty spaces and punctuation marks.
+</p>
+<div class="radio-option" :class="selectedAnswer === 'true' ? 'selected-item' : ''" @click="selectedAnswer = 'true'; evaluated = true">
+<strong>True</strong>. It only saves normal letters.
+</div>
+<div class="radio-option" :class="selectedAnswer === 'false' ? 'selected-item' : ''" @click="selectedAnswer = 'false'; evaluated = true">
+<strong>False</strong>. Punctuation marks and spaces are separated as their own tokens.
+</div>
+<div x-show="evaluated" style="margin-top: 14px; padding: 14px; border-radius: 10px; background-color: #F8FAFC; border: 2px solid #CBD5E1; border-left: 4px solid #06B6D4; display: none; color: #0F172A;">
+<span x-show="selectedAnswer === 'false'" style="color: #0891B2; font-weight: 700;">Correct Choice</span>
+<span x-show="selectedAnswer === 'true'" style="color: #DC2626; font-weight: 700;">Let's Review</span>
+<p style="margin: 6px 0 0 0; color: #1E293B;">
+Spaces and punctuation marks change the core meaning of a phrase. A question mark tells the model to draft an answer, so the splitter keeps them as important tokens.
+</p>
+</div>
+</div>
+<div class="page-navigation-container">
+<button class="nav-step-btn back-step-btn" @click="goToPage(4)">Back</button>
+<button class="nav-step-btn next-step-btn" style="background-color: #F97316;" @click="goToPage(10)">Go to Context Window →</button>
+</div>
+</div>
+</template>
+
+<!-- PAGE 6: CONTEXT WINDOW EXPLANATION -->
+<template x-if="activePage === 10">
+<div>
+<div class="progress-bar">
+<div class="progress-dot" :style="'background-color: ' + getBarColor(10, 1)"></div>
+<div class="progress-dot" :style="'background-color: ' + getBarColor(10, 2)"></div>
+<div class="progress-dot" :style="'background-color: ' + getBarColor(10, 3)"></div>
+<div class="progress-dot" :style="'background-color: ' + getBarColor(10, 4)"></div>
+</div>
+<div class="card" style="border-top: 5px solid #F97316;">
+<h2 style="color: #EA580C;">The Context Window</h2>
+<p>
+An AI cannot look at huge amount of text at once. It has a <strong>context window</strong>, which is the amount of information it can use when generating a response.
+</p>
+<p>
+If important information is outside the context window, the AI may not be able to see the information when answering your questions.
+</p>
+</div>
+<div class="page-navigation-container">
+<button class="nav-step-btn back-step-btn" style="background-color: #06B6D4;" @click="goToPage(5)">Back</button>
+<button class="nav-step-btn next-step-btn" style="background-color: #F97316;" @click="goToPage(11)">Next →</button>
+</div>
+</div>
+</template>
+
+<!-- PAGE 7: CONTEXT WINDOW EXAMPLE -->
+<template x-if="activePage === 11">
+<div>
+<div class="progress-bar">
+<div class="progress-dot" :style="'background-color: ' + getBarColor(11, 1)"></div>
+<div class="progress-dot" :style="'background-color: ' + getBarColor(11, 2)"></div>
+<div class="progress-dot" :style="'background-color: ' + getBarColor(11, 3)"></div>
+<div class="progress-dot" :style="'background-color: ' + getBarColor(11, 4)"></div>
+</div>
+<div class="card" style="border-top: 5px solid #F97316;">
+<h2 style="color: #EA580C;">Example: Whiteboard Space</h2>
+<div class="chat-container">
+<div class="chat-row">
+<div class="chat-avatar" style="border-color: #F97316;"></div>
+<div class="chat-bubble chat-bubble-orange">
+Imagine a whiteboard with limited space. When it gets full, you have to wipe away the oldest notes to write new ones.
+</div>
+</div>
+<div class="chat-row">
+<div class="chat-avatar" style="border-color: #F97316;"></div>
+<div class="chat-bubble chat-bubble-orange">
+The <strong>context window</strong> can only hold a certain amount of information at one time. When new words come in, the oldest information disappears. Because of this, the AI might forget things you talked about earlier, just like you can no longer read the notes that were wiped off the board.
+</div>
+</div>
+</div>
+</div>
+<div class="page-navigation-container">
+<button class="nav-step-btn back-step-btn" @click="goToPage(10)">Back</button>
+<button class="nav-step-btn next-step-btn" style="background-color: #F97316;" @click="goToPage(12)">Next →</button>
+</div>
+</div>
+</template>
+
+<!-- PAGE 8: CONTEXT WINDOW SIMULATION -->
+<template x-if="activePage === 12">
+<div>
+<div class="progress-bar">
+<div class="progress-dot" :style="'background-color: ' + getBarColor(12, 1)"></div>
+<div class="progress-dot" :style="'background-color: ' + getBarColor(12, 2)"></div>
+<div class="progress-dot" :style="'background-color: ' + getBarColor(12, 3)"></div>
+<div class="progress-dot" :style="'background-color: ' + getBarColor(12, 4)"></div>
+</div>
+<div class="card">
+<h2 style="color: #0F172A;">Context Window Simulation</h2>
+<select class="select-input" x-model="selectedStoryIndex" @change="loadSelectedStoryline()">
+<template x-for="(story, index) in storyOptions" :key="index">
+<option :value="index" x-text="story.title"></option>
+</template>
+</select>
+<div class="sentence-preview-box comic-text" x-text="storyWords.join(' ')"></div>
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+<span style="color: #334155; font-size: 14px; font-weight: 700;">Context Window Size</span>
+<span style="color: #EA580C; font-size: 14px; font-weight: 700;" x-text="windowSize + '/' + storyLength + ' words visible'"></span>
+</div>
+<input id="memorySlider" type="range" min="1" :max="storyLength" x-model="windowSize" @input="evaluateClippedPrediction()" class="slider-input" :style="'background: linear-gradient(to right, #F97316 ' + ((windowSize - 1) / (storyLength - 1 || 1) * 100) + '%, #CBD5E1 ' + ((windowSize - 1) / (storyLength - 1 || 1) * 100) + '%)'">
+</div>
+<div class="workspace-grid">
+<section>
+<div class="card" style="height: 100%;">
+<h3 style="color: #334155;">What the AI Can Still See</h3>
+<p style="color:#475569; margin-bottom: 8px; font-size: 14px;">Faded words are hidden from the AI:</p>
+<div style="background: #FFFFFF; padding: 4px 0;">
+<template x-for="(word, index) in storyWords">
+<span class="word-box" :class="(storyWords.length - index) <= windowSize ? 'in-context' : 'out-of-context'" x-text="word"></span>
+</template>
+</div>
+</div>
+</section>
+<aside>
+<div class="card sidebar-panel" style="background-color: #F8FAFC; height: 100%; display:flex; flex-direction:column; justify-content:space-between;">
+<div>
+<h3 style="color: #334155;">The AI's Best Guess</h3>
+<div style="color: #0F172A; margin-top: 10px; background: #FFFFFF; padding: 22px 14px; border: 1.0px solid #F97316; border-radius: 12px; text-align: center; font-size: 26px; font-weight: 700; box-shadow: 0 4px 12px rgba(249, 115, 22, 0.12);" x-text="isLoadingClipped ? '...' : clippedNextWord">
+</div>
+</div>
+<div class="teacher-note" style="background-color: #FFFFFF; border: 2px solid #CBD5E1; border-left: 4px solid #EA580C; margin-top: 14px;">
+When important context words drop off, the AI guess turns generic!
+</div>
+</div>
+</aside>
+</div>
+<div class="page-navigation-container">
+<button class="nav-step-btn back-step-btn" @click="goToPage(11)">Back</button>
+<button class="nav-step-btn next-step-btn" style="background-color: #F97316;" @click="goToPage(13)">Next →</button>
+</div>
+</div>
+</template>
+
+<!-- PAGE 9: CONTEXT WINDOW REVIEW -->
+<template x-if="activePage === 13">
+<div>
+<div class="progress-bar">
+<div class="progress-dot" :style="'background-color: ' + getBarColor(13, 1)"></div>
+<div class="progress-dot" :style="'background-color: ' + getBarColor(13, 2)"></div>
+<div class="progress-dot" :style="'background-color: ' + getBarColor(13, 3)"></div>
+<div class="progress-dot" :style="'background-color: ' + getBarColor(13, 4)"></div>
+</div>
+<div class="card" x-data="{ selectedAnswer: null, evaluated: false }">
+<h2 style="color: #0F172A;">Concept Review</h2>
+<p style="color: #0F172A;">
+True or False: If you copy-paste an entire giant school textbook into a chat, the AI will remember the very first sentence forever.
+</p>
+<div class="radio-option" :class="selectedAnswer === 'true' ? 'selected-item' : ''" @click="selectedAnswer = 'true'; evaluated = true">
+<strong>True</strong>. The AI can see all the text, no matter how long the conversation gets.
+</div>
+<div class="radio-option" :class="selectedAnswer === 'false' ? 'selected-item' : ''" @click="selectedAnswer = 'false'; evaluated = true">
+<strong>False</strong>. The AI can only look at a limited amount of text at one time, so old items drop off to make space.
+</div>
+<div x-show="evaluated" style="margin-top: 14px; padding: 14px; border-radius: 10px; background-color: #F8FAFC; border: 2px solid #CBD5E1; border-left: 4px solid #F97316; display: none; color: #0F172A;">
+<span x-show="selectedAnswer === 'false'" style="color: #EA580C; font-weight: 700;">Correct Choice</span>
+<span x-show="selectedAnswer === 'true'" style="color: #DC2626; font-weight: 700;">Let's Review</span>
+<p style="margin: 6px 0 0 0; color: #1E293B;">
+When a conversation goes past the context window limit, the oldest text drops out to clear space for new words coming in.
+</p>
+</div>
+</div>
+<div class="page-navigation-container">
+<button class="nav-step-btn back-step-btn" @click="goToPage(12)">Back</button>
+<button class="nav-step-btn next-step-btn" style="background-color: #8B5CF6;" @click="goToPage(6)">
+Go to Sentence Builder →
+</button>
+</div>
+</div>
+</template>
+
+<!-- PAGE 10: SENTENCE BUILDER EXPLANATION -->
+<template x-if="activePage === 6">
+<div>
+<div class="progress-bar">
+<div class="progress-dot" :style="'background-color: ' + getBarColor(6, 1)"></div>
+<div class="progress-dot" :style="'background-color: ' + getBarColor(6, 2)"></div>
+<div class="progress-dot" :style="'background-color: ' + getBarColor(6, 3)"></div>
+<div class="progress-dot" :style="'background-color: ' + getBarColor(6, 4)"></div>
+</div>
+<div class="card" style="border-top: 5px solid #8B5CF6;">
+<h2 style="color: #7C3AED;">The Sentence Builder</h2>
+<p>
+AI does not write a whole sentence or paragraph all at once. Instead, it builds the text one word at a time.
+</p>
+<p>
+When you type something, the AI looks at what has already been written and guesses which word is most likely to come next based on its <strong>probability</strong>.
+</p>
+</div>
+<div class="page-navigation-container">
+<button class="nav-step-btn back-step-btn" style="background-color: #EA580C;" @click="goToPage(13)">Back</button>
+<button class="nav-step-btn next-step-btn" style="background-color: #8B5CF6;" @click="goToPage(7)">Next →</button>
+</div>
+</div>
+</template>
+
+<!-- PAGE 11: SENTENCE BUILDER EXAMPLE -->
+<template x-if="activePage === 7">
+<div>
+<div class="progress-bar">
+<div class="progress-dot" :style="'background-color: ' + getBarColor(7, 1)"></div>
+<div class="progress-dot" :style="'background-color: ' + getBarColor(7, 2)"></div>
+<div class="progress-dot" :style="'background-color: ' + getBarColor(7, 3)"></div>
+<div class="progress-dot" :style="'background-color: ' + getBarColor(7, 4)"></div>
+</div>
+<div class="card" style="border-top: 5px solid #8B5CF6;">
+<h2 style="color: #7C3AED;">Example: Fill in the Blank</h2>
+<div class="chat-container">
+<div class="chat-row">
+<div class="chat-avatar" style="border-color: #8B5CF6;"></div>
+<div class="chat-bubble chat-bubble-purple">
+If a friend says: <em>"An apple a day keeps the doctor..."</em>, you can probably guess the next word. You expect the next word to be "away".
+</div>
+</div>
+<div class="chat-row">
+<div class="chat-avatar" style="border-color: #8B5CF6;"></div>
+<div class="chat-bubble chat-bubble-purple">
+The Sentence Builder learns by reading millions of books and websites online. It notices which words often appear together and <strong>guesses</strong> the next word based on those patterns. It does not understand the meaning like people do.
+</div>
+</div>
+</div>
+</div>
+<div class="page-navigation-container">
+<button class="nav-step-btn back-step-btn" @click="goToPage(6)">Back</button>
+<button class="nav-step-btn next-step-btn" style="background-color: #8B5CF6;" @click="goToPage(8)">Next →</button>
+</div>
+</div>
+</template>
+
+<!-- PAGE 12: SENTENCE BUILDER SIMULATION -->
+<template x-if="activePage === 8">
+<div>
+<div class="progress-bar">
+<div class="progress-dot" :style="'background-color: ' + getBarColor(8, 1)"></div>
+<div class="progress-dot" :style="'background-color: ' + getBarColor(8, 2)"></div>
+<div class="progress-dot" :style="'background-color: ' + getBarColor(8, 3)"></div>
+<div class="progress-dot" :style="'background-color: ' + getBarColor(8, 4)"></div>
+</div>
+<div class="card">
+<div>
+<h2 style="margin-bottom: 2px; color: #0F172A;">Complete the Sentence</h2>
+<p class="section-subtitle" style="margin-bottom: 0;">Type a sentence and see which word the AI guesses comes next</p>
+</div>
+<input type="text" x-model="prompt" @input="debouncedFetchNextWord()" class="comic-text" style="width: 100%; padding: 12px; border-radius: 10px; border: 2px solid #CBD5E1; box-sizing: border-box; background-color: #F8FAFC; color: #0F172A; margin: 10px 0; font-size: 18px;">
+<div class="comic-text" style="background: #0F172A; color: #F8FAFC; padding: 12px 16px; border-radius: 10px; border: 2px solid #1E293B; font-size: 18px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
+<div>
+<span x-text="prompt" style="color: #94A3B8;"></span> <span style="border-bottom: 2px solid; font-weight: 700;" :style="'color: ' + selectedWordColor" x-text="selectedWord"></span>
+</div>
+<div>
+<span class="confidence-pill" :style="'background-color: ' + selectedWordColor" x-show="!isLoadingChoices">
+<span x-text="selectedProb + '% sure'"></span>
+</span>
+<span class="thinking-badge" x-show="isLoadingChoices">Thinking...</span>
+</div>
+</div>
+</div>
+<div class="card">
+<h3 style="margin-bottom: 2px; color: #334155;">How the AI Decides</h3>
+<p class="section-subtitle">AI looks at several possible words, each word has its own percentage score:</p>
+<div style="display: flex; justify-content: center; gap: 24px; margin: 24px 0 12px 0;">
+<template x-for="(item, index) in currentChoices">
+<div style="display: flex; flex-direction: column; align-items: center; width: 56px;">
+<div class="bar-container-wrapper" style="height: 100px; width: 100%; display: flex; align-items: flex-end; justify-content: center; border-bottom: 2px solid #CBD5E1; position: relative;">
+<div class="chart-bar-element" :style="'width: 100%; height: ' + (item.prob) + '%; background-color: ' + item.color + '; box-shadow: ' + (selectedIndex === index ? '0 0 6px ' + item.color : 'none') + '; border-radius: 4px 4px 0 0;'">
+<span style="position: absolute; top: -22px; left: 50%; transform: translateX(-50%); font-size: 13px; font-weight: 700; color: #0F172A; white-space: nowrap;" x-text="item.prob + '%'"></span>
+</div>
+</div>
+<span style="text-align: center; margin-top: 8px; width: 100%; font-size: 14px; font-weight: 700;" :style="'color: ' + (selectedIndex === index ? item.color : '#334155')" x-text="item.word"></span>
+</div>
+</template>
+</div>
+<div style="display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-top: 8px;">
+<span style="color: #8B5CF6; font-weight: 700; font-size: 14px;">Logical</span>
+<input id="predictabilitySlider" type="range" min="0" max="100" x-model="predictability" @input="debouncedFetchNextWord()" class="slider-input ombre-slider" style="margin-top: 0;">
+<span style="color: #EF4444; font-weight: 700; font-size: 14px;">Creative</span>
+</div>
+</div>
+<div class="teacher-note" style="background-color: #FFFFFF; border: 2px solid #CBD5E1; border-left: 4px solid #8B5CF6;">
+When you slide towards "creative" the AI skips its top pick and chooses more unusual or funny words! This concept is known as controlling the <strong>temperature</strong>.
+</div>
+<div class="page-navigation-container">
+<button class="nav-step-btn back-step-btn" @click="goToPage(7)">Back</button>
+<button class="nav-step-btn next-step-btn" style="background-color: #8B5CF6;" @click="goToPage(9)">Next →</button>
+</div>
+</div>
+</template>
+
+<!-- PAGE 13: SENTENCE BUILDER REVIEW -->
+<template x-if="activePage === 9">
+<div>
+<div class="progress-bar">
+<div class="progress-dot" :style="'background-color: ' + getBarColor(9, 1)"></div>
+<div class="progress-dot" :style="'background-color: ' + getBarColor(9, 2)"></div>
+<div class="progress-dot" :style="'background-color: ' + getBarColor(9, 3)"></div>
+<div class="progress-dot" :style="'background-color: ' + getBarColor(9, 4)"></div>
+</div>
+<div class="card" x-data="{ selectedAnswer: null, evaluated: false }">
+<h2 style="color: #0F172A;">Concept Review</h2>
+<p style="color: #0F172A;">
+True or False: When the AI gives an unexpected answer, it means it is being creative or inspired.
+</p>
+<div class="radio-option" :class="selectedAnswer === 'true' ? 'selected-item' : ''" @click="selectedAnswer = 'true'; evaluated = true">
+<strong>True</strong>. The AI is acting like a human writer and planning a story.
+</div>
+<div class="radio-option" :class="selectedAnswer === 'false' ? 'selected-item' : ''" @click="selectedAnswer = 'false'; evaluated = true">
+<strong>False</strong>. The AI is not thinking or planning. It is simply choosing unusual words based on patterns in its data.
+</div>
+<div x-show="evaluated" style="margin-top: 14px; padding: 14px; border-radius: 10px; background-color: #F8FAFC; border: 2px solid #CBD5E1; border-left: 4px solid #8B5CF6; display: none; color: #0F172A;">
+<span x-show="selectedAnswer === 'false'" style="color: #7C3AED; font-weight: 700;">Correct Choice</span>
+<span x-show="selectedAnswer === 'true'" style="color: #DC2626; font-weight: 700;">Let's Review</span>
+<p style="margin: 6px 0 0 0; color: #1E293B;">
+Language tools do not have feelings, goals, or awareness. When they create unexpected combinations of words, it happens because they select options with a very low probability percentage, not because they are being creative.
+</p>
+</div>
+</div>
+<div class="page-navigation-container">
+<button class="nav-step-btn back-step-btn" @click="goToPage(8)">Back</button>
+<button class="nav-step-btn next-step-btn" style="background-color: #0F172A;" @click="goToPage(14)">See It All Together →</button>
+</div>
+</div>
+</template>
+
+<!-- PAGE 14: PUTTING IT ALL TOGETHER -->
+<template x-if="activePage === 14">
+<div>
+<div class="progress-bar" style="margin-bottom: 12px;">
+<div class="progress-dot" style="background-color: #0F172A;"></div>
+<div class="progress-dot" style="background-color: #0F172A;"></div>
+<div class="progress-dot" style="background-color: #0F172A;"></div>
+<div class="progress-dot" style="background-color: #0F172A;"></div>
+</div>
+<div style="background: #0F172A; color: #FFFFFF; text-align: center; padding: 18px; border-radius: 14px; margin-bottom: 16px;">
+<h1 style="font-size: 22px; margin: 0;">Putting It All Together</h1>
+<p style="color: #94A3B8; max-width: 600px; margin: 6px auto 0 auto; font-size: 14px;">
+Watch all three concepts work together to write a sentence word-by-word.
+</p>
+</div>
+<div class="card" style="padding: 16px; margin-bottom: 16px;">
+<svg viewBox="0 0 850 135" xmlns="http://www.w3.org/2000/svg" style="width:100%; height:auto; display:block;">
+<defs>
+<marker id="arrowCyan" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="12" markerHeight="12" markerUnits="userSpaceOnUse" orient="auto">
+<path d="M 0 0 L 10 5 L 0 10 Z" fill="#06B6D4"/>
+</marker>
+<marker id="arrowOrange" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="12" markerHeight="12" markerUnits="userSpaceOnUse" orient="auto">
+<path d="M 0 0 L 10 5 L 0 10 Z" fill="#F97316"/>
+</marker>
+<marker id="arrowSlate" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="12" markerHeight="12" markerUnits="userSpaceOnUse" orient="auto">
+<path d="M 0 0 L 10 5 L 0 10 Z" fill="#64748B"/>
+</marker>
+</defs>
+<g transform="translate(10, 10)">
+<rect width="230" height="65" rx="10" fill="#ECFEFF" stroke="#06B6D4" stroke-width="2"/>
+<text x="115" y="26" text-anchor="middle" font-size="15">Stage 1</text>
+<text x="115" y="48" text-anchor="middle" fill="#0891B2" font-weight="700">Word Splitter</text>
+</g>
+<g>
+<line x1="240" y1="42" x2="292" y2="42" stroke="#06B6D4" stroke-width="3" marker-end="url(#arrowCyan)"/>
+<text x="266" y="28" text-anchor="middle" fill="#06B6D4" font-size="12" font-weight="700">Tokens</text>
+</g>
+<g transform="translate(300, 10)">
+<rect width="230" height="65" rx="10" fill="#FFF7ED" stroke="#F97316" stroke-width="2"/>
+<text x="115" y="26" text-anchor="middle" font-size="15">Stage 2</text>
+<text x="115" y="48" text-anchor="middle" fill="#EA580C" font-weight="700">Context Window</text>
+</g>
+<g>
+<line x1="530" y1="42" x2="582" y2="42" stroke="#F97316" stroke-width="3" marker-end="url(#arrowOrange)"/>
+<text x="556" y="28" text-anchor="middle" fill="#F97316" font-size="12" font-weight="700">Context</text>
+</g>
+<g transform="translate(590, 10)">
+<rect width="230" height="65" rx="10" fill="#F5F3FF" stroke="#8B5CF6" stroke-width="2"/>
+<text x="115" y="26" text-anchor="middle" font-size="15">Stage 3</text>
+<text x="115" y="48" text-anchor="middle" fill="#7C3AED" font-weight="700">Sentence Builder</text>
+</g>
+<g>
+<path d="M 705 75 C 705 120, 125 120, 125 80" fill="none" stroke="#64748B" stroke-width="2" stroke-dasharray="4 4" marker-end="url(#arrowSlate)"/>
+<text x="415" y="125" text-anchor="middle" fill="#475569" font-size="12">Then it repeats, again and again, one word at a time!</text>
+</g>
+</svg>
+</div>
+<div class="card" style="border-top: 4px solid #0F172A;">
+<div class="controls-toolbar">
+<div class="action-btn-group">
+<button class="action-btn" :style="'background-color:' + (pipelinePlaying ? '#475569' : '#10B981')" @click="pipelinePlaying ? stopPipelineDemo() : startPipelineDemo()" x-text="pipelinePlaying ? 'Pause' : 'Play'"></button>
+<button class="action-btn" style="background-color:#64748B;" @click="resetPipelineDemo()">Restart</button>
+</div>
+<span style="padding: 4px 12px; border-radius: 999px; color: #FFFFFF; font-size: 13px; font-weight: 700;" :style="'background-color: ' + pipelineStageColor" x-text="pipelineStageLabel"></span>
+</div>
+<div style="background:#FFFFFF; border: 2px solid #E2E8F0; border-radius: 10px; padding: 10px 14px; margin-bottom: 12px; min-height: 44px; display:flex; align-items:center;">
+<div>
+<template x-for="(word, index) in pipelineWords">
+<span class="word-box" style="padding: 3px 10px; font-size: 14px;" :class="(pipelineWords.length - index) <= pipelineWindow ? 'in-context' : 'out-of-context'" x-text="word"></span>
+</template>
+<span x-show="pipelineFinished" style="color:#10B981; margin-left: 6px; font-weight: 700; font-size: 14px;">Finished!</span>
+</div>
+</div>
+<div class="step-card" :class="pipelineStage === 0 ? 'step-active-0' : 'step-inactive'">
+<h4 style="margin:0; color:#0891B2; font-size: 14px;">1. Split sentence into individual tokens</h4>
+<div style="margin-top:4px;">
+<template x-for="tok in pipelineTokens">
+<span class="token-block" style="height:28px; margin: 2px 3px; padding:0 10px; font-size: 13px;" x-text="tok"></span>
+</template>
+</div>
+</div>
+<div class="step-card" :class="pipelineStage === 1 ? 'step-active-1' : 'step-inactive'">
+<h4 style="color:#EA580C; margin: 0; font-size: 14px;">2. Looks at the visible tokens</h4>
+</div>
+<div class="step-card" :class="pipelineStage === 2 ? 'step-active-2' : 'step-inactive'">
+<h4 style="margin:0 0 4px 0; color:#7C3AED; font-size: 14px;">
+3. Guesses & chooses the next word
+<span class="thinking-badge" x-show="isLoadingPipeline" style="margin-left: 6px; padding: 2px 8px; font-size: 12px;">Thinking...</span>
+</h4>
+<div style="display: flex; justify-content: center; gap: 16px; margin-top: 6px;">
+<template x-for="item in pipelineChoices">
+<div style="display: flex; flex-direction: column; align-items: center; width: 48px;">
+<span style="color: #1E293B; font-size: 12px; font-weight: 700;" x-text="item.prob + '%'"></span>
+<div style="height: 40px; width: 100%; display: flex; align-items: flex-end; justify-content: center; border-bottom: 1px solid #CBD5E1;">
+<div class="chart-bar-element" :style="'height: ' + item.prob + '%; width: 100%; background-color: ' + item.color + '; border-radius: 3px 3px 0 0;'"></div>
+</div>
+<span style="width: 100%; text-align: center; color: #0F172A; margin-top: 2px; font-size: 13px; font-weight: 700;" x-text="item.word"></span>
+</div>
+</template>
+</div>
+</div>
+</div>
+<div class="page-navigation-container">
+<button class="nav-step-btn back-step-btn" @click="goToPage(9)">Back</button>
+<button class="nav-step-btn next-step-btn" style="background-color: #0F172A;" @click="goToPage(1)">Finish Lesson</button>
+</div>
+</div>
+</template>
+</main>
+
+<script>
+document.addEventListener('alpine:init', () => {
+  Alpine.data('llmSimulator', () => ({
+    activePage: 1,
+    alpineReady: true,
+    inputText: 'Hello world!',
+    tokenCount: 0,
+    wordCount: 0,
+    tokenBlocks: [],
+    prompt: 'The space rocket safely landed on the',
+    predictability: 0,
+    currentChoices: [
+      { word: "moon", prob: 65, color: "#8B5CF6" },
+      { word: "ground", prob: 18, color: "#06B6D4" },
+      { word: "planet", prob: 10, color: "#10B981" },
+      { word: "ocean", prob: 5, color: "#F59E0B" },
+      { word: "banana", prob: 2, color: "#EF4444" }
+    ],
+    isLoadingChoices: false,
+    selectedStoryIndex: 0,
+    windowSize: 11,
+    storyLength: 11,
+    storyWords: [],
+    clippedNextWord: '...',
+    isLoadingClipped: false,
+    storyOptions: [
+      {
+        title: "Story 1: The Secret Hero",
+        text: "Deep inside the hidden dark cave of Gotham City a hero wears a black cape and fights ..."
+      },
+      {
+        title: "Story 2: The Striped Animal",
+        text: "With sharp yellow teeth orange fur and dark black stripes it is a very big ..."
+      },
+      {
+        title: "Story 3: The Celebration Party",
+        text: "To celebrate turning ten years old there are colorful presents and bright glowing candles on the kitchen ..."
+      }
+    ],
+    pipelineWords: ['The', 'little', 'robot'],
+    pipelineWindow: 4,
+    pipelineStage: 0,
+    pipelinePlaying: false,
+    pipelineFinished: false,
+    pipelineTimer: null,
+    pipelineTokens: [],
+    pipelineChoices: [
+      { word: "woke", prob: 75, color: "#8B5CF6" },
+      { word: "smiled", prob: 18, color: "#06B6D4" },
+      { word: "fell", prob: 7, color: "#10B981" }
+    ],
+    isLoadingPipeline: false,
+    colorPalette: ['#8B5CF6', '#06B6D4', '#10B981', '#F59E0B', '#EF4444'],
+    debounceTimer: null,
+
+    init() {
+      const loadingEl = document.getElementById('fallback-loading-wrap');
+      if (loadingEl) loadingEl.style.display = 'none';
+      this.executeTokenAnalysis();
+      this.fetchNextWordChoices();
+      this.loadSelectedStoryline();
+      this.$watch('inputText', () => this.executeTokenAnalysis());
+    },
+
+    getBarColor(currentPage, targetDot) {
+      let activeColor = '#E2E8F0';
+      if (currentPage >= 2 && currentPage <= 5) {
+        if (targetDot <= (currentPage - 1)) activeColor = '#06B6D4';
+      } else if (currentPage >= 10 && currentPage <= 13) {
+        let stepIndex = currentPage - 9;
+        if (targetDot <= stepIndex) activeColor = '#F97316';
+      } else if (currentPage >= 6 && currentPage <= 9) {
+        let stepIndex = currentPage - 5;
+        if (targetDot <= stepIndex) activeColor = '#8B5CF6';
+      }
+      return activeColor;
+    },
+
+    goToPage(pageNum) {
+      this.activePage = pageNum;
+      if (pageNum === 4) this.executeTokenAnalysis();
+      if (pageNum === 8) this.fetchNextWordChoices();
+      if (pageNum === 12) this.loadSelectedStoryline();
+      if (pageNum === 14) this.refreshPipelineTokens();
+    },
+
+    executeTokenAnalysis() {
+      if (!this.inputText) {
+        this.tokenCount = 0;
+        this.wordCount = 0;
+        this.tokenBlocks = [];
+        return;
+      }
+      const cleanWords = this.inputText.trim().split(/\s+/).filter(w => w.length > 0);
+      this.wordCount = cleanWords.length;
+
+      if (window.GPTTokenizer_cl100k_base) {
+        const tokens = window.GPTTokenizer_cl100k_base.encode(this.inputText);
+        this.tokenCount = tokens.length;
+        this.tokenBlocks = tokens.map(t => window.GPTTokenizer_cl100k_base.decode([t]));
+      } else {
+        this.tokenBlocks = this.inputText.match(/[\w']+|[^\w\s]|\s+/g) || [];
+        this.tokenCount = this.tokenBlocks.length;
+      }
+    },
+
+    debouncedFetchNextWord() {
+      this.isLoadingChoices = true;
+      if (this.debounceTimer) clearTimeout(this.debounceTimer);
+      this.debounceTimer = setTimeout(() => this.fetchNextWordChoices(), 300);
+    },
+
+    async fetchNextWordChoices() {
+      if (!this.prompt || this.prompt.trim() === '') {
+        this.isLoadingChoices = false;
+        return;
+      }
+
+      this.isLoadingChoices = true;
+      const temp = (100 - parseInt(this.predictability)) / 100;
+
+      try {
+        const response = await fetch('/api/predict', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            prompt: this.prompt,
+            temperature: temp < 0.1 ? 0.1 : temp
+          })
         });
-    </script>
+
+        const data = await response.json();
+        if (data.choices && Array.isArray(data.choices)) {
+          this.currentChoices = data.choices.map((item, idx) => ({
+            word: item.word,
+            prob: item.prob,
+            color: this.colorPalette[idx] || '#94A3B8'
+          }));
+        }
+      } catch (error) {
+        console.error("Failed to fetch choices from API:", error);
+      } finally {
+        this.isLoadingChoices = false;
+      }
+    },
+
+    getApparentIndex() {
+      if (!this.currentChoices.length) return 0;
+      const val = parseInt(this.predictability);
+      if (val < 25) return 0;
+      if (val < 50) return 1;
+      if (val < 75) return 2;
+      if (val < 92) return 3;
+      return 4;
+    },
+
+    get selectedIndex() {
+      const idx = this.getApparentIndex();
+      return Math.min(idx, this.currentChoices.length - 1);
+    },
+
+    get selectedWord() { return this.currentChoices[this.selectedIndex]?.word || '...'; },
+    get selectedProb() { return this.currentChoices[this.selectedIndex]?.prob || 0; },
+    get selectedWordColor() { return this.currentChoices[this.selectedIndex]?.color || '#8B5CF6'; },
+
+    loadSelectedStoryline() {
+      const currentObj = this.storyOptions[this.selectedStoryIndex];
+      this.storyWords = currentObj.text.trim().split(/\s+/);
+      this.storyLength = this.storyWords.length;
+      this.windowSize = this.storyLength;
+      this.fetchClippedPrediction();
+    },
+
+    evaluateClippedPrediction() {
+      this.isLoadingClipped = true;
+      setTimeout(() => this.fetchClippedPrediction(), 150);
+    },
+
+    fetchClippedPrediction() {
+      this.isLoadingClipped = false;
+      const w = parseInt(this.windowSize);
+      const idx = parseInt(this.selectedStoryIndex);
+
+      if (idx === 0) {
+        if (w >= 6) this.clippedNextWord = "crime";
+        else if (w >= 3) this.clippedNextWord = "fly";
+        else this.clippedNextWord = "something";
+      } else if (idx === 1) {
+        if (w >= 8) this.clippedNextWord = "tiger";
+        else if (w >= 4) this.clippedNextWord = "animal";
+        else this.clippedNextWord = "thing";
+      } else if (idx === 2) {
+        if (w >= 5) this.clippedNextWord = "table";
+        else if (w >= 2) this.clippedNextWord = "room";
+        else this.clippedNextWord = "house";
+      }
+    },
+
+    get pipelineStageLabel() {
+      const labels = ['Splitting into tokens...', 'Checking context window...', 'Guessing next word...'];
+      return this.pipelineFinished ? 'Story finished!' : labels[this.pipelineStage];
+    },
+
+    get pipelineStageColor() {
+      const colors = ['#06B6D4', '#F97316', '#8B5CF6'];
+      return this.pipelineFinished ? '#10B981' : colors[this.pipelineStage];
+    },
+
+    refreshPipelineTokens() {
+      const sentence = this.pipelineWords.join(' ');
+      if (window.GPTTokenizer_cl100k_base) {
+        const raw = window.GPTTokenizer_cl100k_base.encode(sentence);
+        this.pipelineTokens = raw.map(t => window.GPTTokenizer_cl100k_base.decode([t]));
+      } else {
+        this.pipelineTokens = sentence.match(/[\w']+|[^\w\s]|\s+/g) || [];
+      }
+    },
+
+    startPipelineDemo() {
+      if (this.pipelineFinished) this.resetPipelineDemo();
+      this.pipelinePlaying = true;
+      this.pipelineTimer = setInterval(() => this.advancePipelineDemo(), 1400);
+    },
+
+    stopPipelineDemo() {
+      this.pipelinePlaying = false;
+      if (this.pipelineTimer) clearInterval(this.pipelineTimer);
+    },
+
+    resetPipelineDemo() {
+      this.stopPipelineDemo();
+      this.pipelineWords = ['The', 'little', 'robot'];
+      this.pipelineStage = 0;
+      this.pipelineFinished = false;
+      this.pipelineChoices = [
+        { word: "woke", prob: 75, color: "#8B5CF6" },
+        { word: "smiled", prob: 18, color: "#06B6D4" },
+        { word: "fell", prob: 7, color: "#10B981" }
+      ];
+      this.refreshPipelineTokens();
+    },
+
+    advancePipelineDemo() {
+      if (this.pipelineFinished) { this.stopPipelineDemo(); return; }
+
+      if (this.pipelineStage === 0) {
+        this.refreshPipelineTokens();
+        this.pipelineStage = 1;
+        return;
+      }
+
+      if (this.pipelineStage === 1) {
+        const len = this.pipelineWords.length;
+        if (len === 3) {
+          this.pipelineChoices = [
+            { word: "woke", prob: 75, color: "#8B5CF6" },
+            { word: "smiled", prob: 18, color: "#06B6D4" },
+            { word: "fell", prob: 7, color: "#10B981" }
+          ];
+        } else if (len === 4) {
+          this.pipelineChoices = [
+            { word: "up", prob: 85, color: "#8B5CF6" },
+            { word: "early", prob: 10, color: "#06B6D4" },
+            { word: "here", prob: 5, color: "#10B981" }
+          ];
+        } else if (len === 5) {
+          this.pipelineChoices = [
+            { word: "and", prob: 60, color: "#8B5CF6" },
+            { word: "with", prob: 30, color: "#06B6D4" },
+            { word: "today", prob: 10, color: "#10B981" }
+          ];
+        } else if (len === 6) {
+          this.pipelineChoices = [
+            { word: "looked", prob: 70, color: "#8B5CF6" },
+            { word: "ran", prob: 22, color: "#06B6D4" },
+            { word: "sang", prob: 8, color: "#10B981" }
+          ];
+        } else if (len === 7) {
+          this.pipelineChoices = [
+            { word: "around", prob: 80, color: "#8B5CF6" },
+            { word: "away", prob: 15, color: "#06B6D4" },
+            { word: "home", prob: 5, color: "#10B981" }
+          ];
+        } else {
+          this.pipelineChoices = [
+            { word: "happily", prob: 90, color: "#8B5CF6" },
+            { word: "now", prob: 8, color: "#06B6D4" },
+            { word: "sadly", prob: 2, color: "#10B981" }
+          ];
+        }
+        this.pipelineStage = 2;
+        return;
+      }
+
+      if (this.pipelineStage === 2) {
+        const nextWord = this.pipelineChoices[0].word;
+        this.pipelineWords.push(nextWord);
+
+        if (this.pipelineWords.length >= 9) {
+          this.pipelineFinished = true;
+          this.stopPipelineDemo();
+        } else {
+          this.pipelineStage = 0;
+        }
+      }
+    }
+  }));
+});
+</script>
 </body>
 </html>
