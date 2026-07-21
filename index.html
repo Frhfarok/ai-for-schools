@@ -1096,7 +1096,7 @@ document.addEventListener('alpine:init', () => {
     tokenCount: 0,
     wordCount: 0,
     tokenBlocks: [],
-    prompt: '',
+    prompt: 'The space rocket safely landed on the',
     hasSubmitted: false,
     predictability: 0,
     currentChoices: [],
@@ -1191,7 +1191,6 @@ document.addEventListener('alpine:init', () => {
     },
 
     handlePromptInput() {
-      // Hide results if prompt is modified or emptied
       this.hasSubmitted = false;
       this.currentChoices = [];
       if (this.debounceTimer) clearTimeout(this.debounceTimer);
