@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400;1,700&family=Comic+Neue:wght@700&display=swap" rel="stylesheet">
+<!-- Standard BPE Tokenizer for Browser -->
 <script src="https://cdn.jsdelivr.net/npm/gpt-tokenizer/dist/cl100k_base.user.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.1/dist/cdn.min.js" defer></script>
 <style>
@@ -29,11 +30,34 @@ body {
 .comic-text {
   font-family: 'Comic Sans MS', 'Comic Neue', 'Comic Sans', cursive, sans-serif !important;
 }
-h1 { font-size: 26px; font-weight: 700; line-height: 1.3; margin: 0 0 8px 0; }
-h2 { font-size: 21px; font-weight: 700; line-height: 1.35; margin: 0 0 10px 0; }
-h3 { font-size: 18px; font-weight: 700; line-height: 1.35; margin: 0 0 6px 0; }
-h4 { font-size: 15px; font-weight: 700; margin: 0 0 4px 0; }
-p { font-size: 16px; line-height: 1.55; margin: 0 0 10px 0; }
+h1 {
+  font-size: 26px;
+  font-weight: 700;
+  line-height: 1.3;
+  margin: 0 0 8px 0;
+}
+h2 {
+  font-size: 21px;
+  font-weight: 700;
+  line-height: 1.35;
+  margin: 0 0 10px 0;
+}
+h3 {
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.35;
+  margin: 0 0 6px 0;
+}
+h4 {
+  font-size: 15px;
+  font-weight: 700;
+  margin: 0 0 4px 0;
+}
+p {
+  font-size: 16px;
+  line-height: 1.55;
+  margin: 0 0 10px 0;
+}
 header {
   background-color: #0F172A;
   color: #FFFFFF;
@@ -63,7 +87,10 @@ header {
   font-weight: 700;
   transition: all 0.2s ease;
 }
-.home-icon-btn:hover { background-color: #334155; transform: translateY(-1px); }
+.home-icon-btn:hover {
+  background-color: #334155;
+  transform: translateY(-1px);
+}
 .container {
   max-width: 1040px;
   width: 100%;
@@ -78,7 +105,9 @@ header {
   grid-template-columns: 1.7fr 1.3fr;
   gap: 18px;
 }
-@media (max-width: 800px) { .workspace-grid { grid-template-columns: 1fr; } }
+@media (max-width: 800px) {
+  .workspace-grid { grid-template-columns: 1fr; }
+}
 .card {
   background-color: #FFFFFF;
   border-radius: 14px;
@@ -100,8 +129,14 @@ header {
   flex-direction: column;
   justify-content: space-between;
 }
-.menu-card:hover { transform: translateY(-3px); box-shadow: 0 12px 24px -6px rgba(15, 23, 42, 0.1); }
-.menu-card .icon { font-size: 32px; margin-bottom: 6px; }
+.menu-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 24px -6px rgba(15, 23, 42, 0.1);
+}
+.menu-card .icon {
+  font-size: 32px;
+  margin-bottom: 6px;
+}
 .theme-splitter:hover { border-color: #06B6D4; }
 .theme-matcher:hover { border-color: #F97316; }
 .theme-builder:hover { border-color: #8B5CF6; }
@@ -190,8 +225,17 @@ header {
   font-size: 15px;
   font-weight: 700;
 }
-.in-context { background-color: #FFF7ED; border: 2px solid #F97316; color: #9A3412; }
-.out-of-context { opacity: 0.35; background-color: #F1F5F9; border: 2px dashed #64748B; color: #475569; }
+.in-context {
+  background-color: #FFF7ED;
+  border: 2px solid #F97316;
+  color: #9A3412;
+}
+.out-of-context {
+  opacity: 0.35;
+  background-color: #F1F5F9;
+  border: 2px dashed #64748B;
+  color: #475569;
+}
 .slider-input {
   width: 100%;
   margin-top: 8px;
@@ -224,58 +268,202 @@ header {
   outline: none;
 }
 .select-input:focus { border-color: #F97316; }
-.ombre-slider { background: linear-gradient(to right, #8B5CF6 0%, #D946EF 50%, #EF4444 100%) !important; }
-.accent-output { color: #0F172A; font-size: 24px; font-weight: 700; }
-.stat-divider { height: 2px; background-color: #E2E8F0; margin: 12px 0; }
-.teacher-note { padding: 12px 16px; background-color: #F8FAFC; border-radius: 10px; border-left: 4px solid #334155; color: #1E293B; font-size: 15px; }
+.ombre-slider {
+  background: linear-gradient(to right, #8B5CF6 0%, #D946EF 50%, #EF4444 100%) !important;
+}
+.accent-output {
+  color: #0F172A;
+  font-size: 24px;
+  font-weight: 700;
+}
+.stat-divider {
+  height: 2px;
+  background-color: #E2E8F0;
+  margin: 12px 0;
+}
+.teacher-note {
+  padding: 12px 16px;
+  background-color: #F8FAFC;
+  border-radius: 10px;
+  border-left: 4px solid #334155;
+  color: #1E293B;
+  font-size: 15px;
+}
 .radio-option {
-  display: block; padding: 12px 16px; margin: 10px 0; border: 2px solid #E2E8F0;
-  border-radius: 10px; cursor: pointer; background-color: #FFFFFF; font-size: 16px; transition: all 0.2s ease;
+  display: block;
+  padding: 12px 16px;
+  margin: 10px 0;
+  border: 2px solid #E2E8F0;
+  border-radius: 10px;
+  cursor: pointer;
+  background-color: #FFFFFF;
+  font-size: 16px;
+  transition: all 0.2s ease;
 }
 .radio-option:hover { border-color: #94A3B8; background-color: #F8FAFC; }
 .radio-option.selected-item { border-color: #0F172A; background-color: #F8FAFC; }
-.progress-bar { display: flex; gap: 6px; margin-bottom: 14px; }
-.progress-dot { height: 6px; flex-grow: 1; border-radius: 4px; background-color: #E2E8F0; transition: background-color 0.3s ease; }
+.progress-bar {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+.progress-dot {
+  height: 6px;
+  flex-grow: 1;
+  border-radius: 4px;
+  background-color: #E2E8F0;
+  transition: background-color 0.3s ease;
+}
+.chart-bar-element {
+  width: 100%;
+  border-radius: 4px 4px 0 0;
+  transition: all 0.3s ease;
+  position: relative;
+}
 .sentence-preview-box {
-  background-color: #F8FAFC; border: 2px solid #E2E8F0; border-radius: 10px;
-  padding: 12px 16px; color: #0F172A; line-height: 1.5; margin-bottom: 12px; font-size: 18px;
+  background-color: #F8FAFC;
+  border: 2px solid #E2E8F0;
+  border-radius: 10px;
+  padding: 12px 16px;
+  color: #0F172A;
+  line-height: 1.5;
+  margin-bottom: 12px;
+  font-size: 18px;
 }
 .thinking-badge {
-  display: inline-flex; align-items: center; gap: 4px; color: #475569;
-  padding: 4px 10px; background-color: #F1F5F9; border-radius: 999px; border: 1px solid #CBD5E1; font-size: 13px; font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: #475569;
+  padding: 4px 10px;
+  background-color: #F1F5F9;
+  border-radius: 999px;
+  border: 1px solid #CBD5E1;
+  font-size: 13px;
+  font-weight: 700;
 }
 .confidence-pill {
-  display: inline-flex; align-items: center; padding: 4px 12px;
-  border-radius: 999px; color: #FFFFFF; font-size: 13px; font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  border-radius: 999px;
+  color: #FFFFFF;
+  font-size: 13px;
+  font-weight: 700;
 }
-.section-subtitle { color: #475569; margin-bottom: 6px; font-size: 14px; }
-.step-card { margin-bottom: 10px; padding: 10px 14px; border-radius: 10px; border-width: 2px; border-style: solid; }
+.section-subtitle {
+  color: #475569;
+  margin-bottom: 6px;
+  font-size: 14px;
+}
+.step-card {
+  margin-bottom: 10px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  border-width: 2px;
+  border-style: solid;
+}
 .step-active-0 { border-color: #06B6D4 !important; background-color: #ECFEFF !important; }
 .step-active-1 { border-color: #F97316 !important; background-color: #FFF7ED !important; }
 .step-active-2 { border-color: #8B5CF6 !important; background-color: #F5F3FF !important; }
 .step-inactive { border-color: #E2E8F0 !important; background-color: #FFFFFF !important; opacity: 0.5 !important; }
-.chat-container { display: flex; flex-direction: column; gap: 14px; margin: 14px 0; }
-.chat-row { display: flex; align-items: flex-end; gap: 12px; }
-.chat-avatar {
-  width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center;
-  justify-content: center; flex-shrink: 0; background-color: #F1F5F9; border: 2px solid #64748B; font-size: 18px;
+.chat-container {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin: 14px 0;
 }
-.chat-bubble { position: relative; padding: 14px 18px; border-radius: 16px; line-height: 1.5; max-width: 85%; font-size: 16px; }
+.chat-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+}
+.chat-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background-color: #F1F5F9;
+  border: 2px solid #64748B;
+  font-size: 18px;
+}
+.chat-bubble {
+  position: relative;
+  padding: 14px 18px;
+  border-radius: 16px;
+  line-height: 1.5;
+  max-width: 85%;
+  font-size: 16px;
+}
 .chat-bubble-cyan { background-color: #ECFEFF; border: 2px solid #06B6D4; color: #086078; }
 .chat-bubble-orange { background-color: #FFF7ED; border: 2px solid #F97316; color: #9A3412; }
 .chat-bubble-purple { background-color: #F5F3FF; border: 2px solid #8B5CF6; color: #5B21B6; }
 .controls-toolbar {
-  display: flex; align-items: center; justify-content: space-between;
-  background: #F8FAFC; padding: 8px 12px; border-radius: 10px; border: 1px solid #E2E8F0; margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #F8FAFC;
+  padding: 8px 12px;
+  border-radius: 10px;
+  border: 1px solid #E2E8F0;
+  margin-bottom: 12px;
 }
-.action-btn-group { display: flex; gap: 8px; }
-.action-btn { border: none; padding: 6px 14px; border-radius: 8px; font-size: 14px; font-weight: 700; cursor: pointer; color: #FFFFFF; transition: opacity 0.2s; }
+.action-btn-group {
+  display: flex;
+  gap: 8px;
+}
+.action-btn {
+  border: none;
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  color: #FFFFFF;
+  transition: opacity 0.2s;
+}
 .action-btn:hover { opacity: 0.9; }
-.input-submit-wrapper { display: flex; gap: 10px; align-items: center; margin: 10px 0; }
-.submit-btn { background-color: #8B5CF6; color: #FFFFFF; border: none; padding: 12px 22px; border-radius: 10px; font-size: 16px; font-weight: 700; cursor: pointer; transition: background-color 0.2s ease; white-space: nowrap; flex-shrink: 0; }
-.submit-btn:hover { background-color: #7C3AED; }
-.clear-btn { background-color: #EF4444; color: #FFFFFF; border: none; padding: 12px 22px; border-radius: 10px; font-size: 16px; font-weight: 700; cursor: pointer; transition: background-color 0.2s ease; white-space: nowrap; flex-shrink: 0; }
-.clear-btn:hover { background-color: #DC2626; }
+.input-submit-wrapper {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin: 10px 0;
+}
+.submit-btn {
+  background-color: #8B5CF6;
+  color: #FFFFFF;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.submit-btn:hover {
+  background-color: #7C3AED;
+}
+.clear-btn {
+  background-color: #EF4444;
+  color: #FFFFFF;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.clear-btn:hover {
+  background-color: #DC2626;
+}
 svg text { font-size: 13px !important; font-weight: 700 !important; }
 </style>
 </head>
@@ -283,7 +471,9 @@ svg text { font-size: 13px !important; font-weight: 700 !important; }
 <header>
 <div class="logo-text"> Large Language Models (LLMs)</div>
 <nav>
-<button class="home-icon-btn" x-show="activePage !== 1" @click="goToPage(1)" style="display: none;">Home</button>
+<button class="home-icon-btn" x-show="activePage !== 1" @click="goToPage(1)" style="display: none;">
+Home
+</button>
 </nav>
 </header>
 <noscript>
@@ -301,7 +491,6 @@ svg text { font-size: 13px !important; font-weight: 700 !important; }
 </div>
 </main>
 <main class="container" x-show="alpineReady" style="display:none;">
-
 <!-- PAGE 1: MENU -->
 <template x-if="activePage === 1">
 <div>
@@ -351,8 +540,12 @@ AI tools do not think like humans. Let's look at the three core concepts of Larg
 </div>
 <div class="card" style="border-top: 5px solid #06B6D4;">
 <h2 style="color: #0891B2;">The Word Splitter</h2>
-<p>AI cannot read whole words the way humans do. Before it can look at your sentence, it needs to split the word into smaller chunks.</p>
-<p>We call these smaller chunks <strong>tokens</strong>. A token can be a single word, a fragment of a long word, a full stop, or even an empty space.</p>
+<p>
+AI cannot read whole words the way humans do. Before it can look at your sentence, it needs to split the word into smaller chunks.
+</p>
+<p>
+We call these smaller chunks <strong>tokens</strong>. A token can be a single word, a fragment of a long word, a full stop, or even an empty space.
+</p>
 </div>
 <div class="page-navigation-container justify-end">
 <button class="nav-step-btn next-step-btn" style="background-color: #06B6D4;" @click="goToPage(3)">Next →</button>
@@ -451,7 +644,9 @@ Notice how empty spaces ( ) and punctuation symbols have their own puzzle piece.
 </div>
 <div class="card" x-data="{ selectedAnswer: null, evaluated: false }">
 <h2 style="color: #0F172A;">Concept Review</h2>
-<p style="color: #0F172A;">True or False: When you submit a prompt, the AI skips all empty spaces and punctuation marks.</p>
+<p style="color: #0F172A;">
+True or False: When you submit a prompt, the AI skips all empty spaces and punctuation marks.
+</p>
 <div class="radio-option" :class="selectedAnswer === 'true' ? 'selected-item' : ''" @click="selectedAnswer = 'true'; evaluated = true">
 <strong>True</strong>. It only saves normal letters.
 </div>
@@ -484,8 +679,12 @@ Spaces and punctuation marks change the core meaning of a phrase. A question mar
 </div>
 <div class="card" style="border-top: 5px solid #F97316;">
 <h2 style="color: #EA580C;">The Context Window</h2>
-<p>An AI cannot look at huge amount of text at once. It has a <strong>context window</strong>, which is the amount of information it can use when generating a response.</p>
-<p>If important information is outside the context window, the AI may not be able to see the information when answering your questions.</p>
+<p>
+An AI cannot look at huge amount of text at once. It has a <strong>context window</strong>, which is the amount of information it can use when generating a response.
+</p>
+<p>
+If important information is outside the context window, the AI may not be able to see the information when answering your questions.
+</p>
 </div>
 <div class="page-navigation-container">
 <button class="nav-step-btn back-step-btn" style="background-color: #06B6D4;" @click="goToPage(5)">Back</button>
@@ -593,7 +792,9 @@ When important context words drop off, the AI guess turns generic!
 </div>
 <div class="card" x-data="{ selectedAnswer: null, evaluated: false }">
 <h2 style="color: #0F172A;">Concept Review</h2>
-<p style="color: #0F172A;">True or False: If you copy-paste an entire giant school textbook into a chat, the AI will remember the very first sentence forever.</p>
+<p style="color: #0F172A;">
+True or False: If you copy-paste an entire giant school textbook into a chat, the AI will remember the very first sentence forever.
+</p>
 <div class="radio-option" :class="selectedAnswer === 'true' ? 'selected-item' : ''" @click="selectedAnswer = 'true'; evaluated = true">
 <strong>True</strong>. The AI can see all the text, no matter how long the conversation gets.
 </div>
@@ -628,8 +829,12 @@ Go to Sentence Builder →
 </div>
 <div class="card" style="border-top: 5px solid #8B5CF6;">
 <h2 style="color: #7C3AED;">The Sentence Builder</h2>
-<p>AI does not write a whole sentence or paragraph all at once. Instead, it builds the text one word at a time.</p>
-<p>When you type something, the AI looks at what has already been written and guesses which word is most likely to come next based on its <strong>probability</strong>.</p>
+<p>
+AI does not write a whole sentence or paragraph all at once. Instead, it builds the text one word at a time.
+</p>
+<p>
+When you type something, the AI looks at what has already been written and guesses which word is most likely to come next based on its <strong>probability</strong>.
+</p>
 </div>
 <div class="page-navigation-container">
 <button class="nav-step-btn back-step-btn" style="background-color: #EA580C;" @click="goToPage(13)">Back</button>
@@ -690,55 +895,39 @@ The Sentence Builder learns by reading millions of books and websites online. It
   <button type="button" @click="fetchNextWordChoices()" class="submit-btn">Submit</button>
   <button type="button" @click="clearPromptInput()" class="clear-btn">Clear</button>
 </div>
-
-<!-- FIX 1: GRID LAYOUT TO ENSURE BADGE IS INLINE AND NEVER STACKS -->
-<div class="comic-text" x-show="hasSubmitted || isLoadingChoices" style="background: #0F172A; color: #F8FAFC; padding: 12px 16px; border-radius: 10px; border: 2px solid #1E293B; font-size: 18px; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 16px; align-items: center; width: 100%;">
-  <div style="overflow: hidden; white-space: nowrap; text-overflow: ellipsis; text-align: left;">
-    <span x-text="prompt" style="color: #94A3B8;"></span> 
-    <span style="border-bottom: 2px solid; font-weight: 700;" :style="'color: ' + selectedWordColor" x-text="selectedWord"></span>
-  </div>
-  <div style="text-align: right;">
-    <span class="confidence-pill" :style="'background-color: ' + selectedWordColor" x-show="!isLoadingChoices && currentChoices.length > 0">
-      <span x-text="selectedProb + '% sure'"></span>
-    </span>
-    <span class="thinking-badge" x-show="isLoadingChoices">Thinking...</span>
-  </div>
+<div class="comic-text" style="background: #0F172A; color: #F8FAFC; padding: 12px 16px; border-radius: 10px; border: 2px solid #1E293B; font-size: 18px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
+<div>
+<span x-text="prompt" style="color: #94A3B8;"></span> <span style="border-bottom: 2px solid; font-weight: 700;" :style="'color: ' + selectedWordColor" x-text="selectedWord"></span>
+</div>
+<div>
+<span class="confidence-pill" :style="'background-color: ' + selectedWordColor" x-show="!isLoadingChoices && currentChoices.length > 0">
+<span x-text="selectedProb + '% sure'"></span>
+</span>
+<span class="thinking-badge" x-show="isLoadingChoices">Thinking...</span>
 </div>
 </div>
-
-<!-- FIX 2: HORIZONTAL SEQUENCE OF VERTICAL BARS (GROWING UPWARDS) -->
+</div>
 <div class="card">
 <h3 style="margin-bottom: 2px; color: #334155;">How the AI Decides</h3>
 <p class="section-subtitle">AI looks at several possible words, each word has its own percentage score:</p>
-
-<!-- The Chart Container: fixed height, align-items flex-end grounds everything to the bottom -->
-<div x-show="hasSubmitted && currentChoices.length > 0" style="display: flex; flex-direction: row; justify-content: center; align-items: flex-end; gap: 16px; margin: 32px 0 16px 0; height: 130px; width: 100%;">
-  <template x-for="(item, index) in currentChoices">
-    <!-- Individual Column -->
-    <div style="display: flex; flex-direction: column; justify-content: flex-end; align-items: center; width: 68px; height: 100%;">
-      <!-- Label above bar -->
-      <span x-text="item.prob + '%'" style="font-size: 13px; font-weight: 700; color: #0F172A; margin-bottom: 6px;"></span>
-      <!-- Growing vertical bar -->
-      <div :style="'height: ' + Math.max(item.prob, 2) + '%; width: 100%; background-color: ' + item.color + '; border-radius: 4px 4px 0 0; transition: height 0.3s ease; box-shadow: ' + (selectedIndex === index ? '0 0 8px ' + item.color : 'none') + ';'"></div>
-      <!-- Label below bar (baseline) -->
-      <div style="width: 100%; border-top: 2px solid #CBD5E1; padding-top: 8px; text-align: center;">
-        <span x-text="item.word" :style="'font-size: 14px; font-weight: 700; word-break: break-word; color: ' + (selectedIndex === index ? item.color : '#334155')"></span>
-      </div>
-    </div>
-  </template>
+<div style="display: flex; justify-content: center; gap: 24px; margin: 24px 0 12px 0;">
+<template x-for="(item, index) in currentChoices">
+<div style="display: flex; flex-direction: column; align-items: center; width: 56px;">
+<div class="bar-container-wrapper" style="height: 100px; width: 100%; display: flex; align-items: flex-end; justify-content: center; border-bottom: 2px solid #CBD5E1; position: relative;">
+<div class="chart-bar-element" :style="'width: 100%; height: ' + (item.prob) + '%; background-color: ' + item.color + '; box-shadow: ' + (selectedIndex === index ? '0 0 6px ' + item.color : 'none') + '; border-radius: 4px 4px 0 0;'">
+<span style="position: absolute; top: -22px; left: 50%; transform: translateX(-50%); font-size: 13px; font-weight: 700; color: #0F172A; white-space: nowrap;" x-text="item.prob + '%'"></span>
 </div>
-
-<div x-show="!hasSubmitted" style="text-align: center; padding: 24px 0; color: #94A3B8; font-weight: 700; font-size: 15px;">
-Click Submit above to generate candidate word predictions.
 </div>
-
-<div style="display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-top: 16px;">
+<span style="text-align: center; margin-top: 8px; width: 100%; font-size: 14px; font-weight: 700;" :style="'color: ' + (selectedIndex === index ? item.color : '#334155')" x-text="item.word"></span>
+</div>
+</template>
+</div>
+<div style="display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-top: 8px;">
 <span style="color: #8B5CF6; font-weight: 700; font-size: 14px;">Logical</span>
 <input id="predictabilitySlider" type="range" min="0" max="100" x-model="predictability" @input="debouncedFetchNextWord()" class="slider-input ombre-slider" style="margin-top: 0;">
 <span style="color: #EF4444; font-weight: 700; font-size: 14px;">Creative</span>
 </div>
 </div>
-
 <div class="teacher-note" style="background-color: #FFFFFF; border: 2px solid #CBD5E1; border-left: 4px solid #8B5CF6;">
 When you slide towards "creative" the AI skips its top pick and chooses more unusual or funny words! This concept is known as controlling the <strong>temperature</strong>.
 </div>
@@ -760,7 +949,9 @@ When you slide towards "creative" the AI skips its top pick and chooses more unu
 </div>
 <div class="card" x-data="{ selectedAnswer: null, evaluated: false }">
 <h2 style="color: #0F172A;">Concept Review</h2>
-<p style="color: #0F172A;">True or False: When the AI gives an unexpected answer, it means it is being creative or inspired.</p>
+<p style="color: #0F172A;">
+True or False: When the AI gives an unexpected answer, it means it is being creative or inspired.
+</p>
 <div class="radio-option" :class="selectedAnswer === 'true' ? 'selected-item' : ''" @click="selectedAnswer = 'true'; evaluated = true">
 <strong>True</strong>. The AI is acting like a human writer and planning a story.
 </div>
@@ -815,13 +1006,19 @@ Watch all three concepts work together to write a sentence word-by-word.
 <text x="115" y="26" text-anchor="middle" font-size="15">Stage 1</text>
 <text x="115" y="48" text-anchor="middle" fill="#0891B2" font-weight="700">Word Splitter</text>
 </g>
-<g><line x1="240" y1="42" x2="292" y2="42" stroke="#06B6D4" stroke-width="3" marker-end="url(#arrowCyan)"/><text x="266" y="28" text-anchor="middle" fill="#06B6D4" font-size="12" font-weight="700">Tokens</text></g>
+<g>
+<line x1="240" y1="42" x2="292" y2="42" stroke="#06B6D4" stroke-width="3" marker-end="url(#arrowCyan)"/>
+<text x="266" y="28" text-anchor="middle" fill="#06B6D4" font-size="12" font-weight="700">Tokens</text>
+</g>
 <g transform="translate(300, 10)">
 <rect width="230" height="65" rx="10" fill="#FFF7ED" stroke="#F97316" stroke-width="2"/>
 <text x="115" y="26" text-anchor="middle" font-size="15">Stage 2</text>
 <text x="115" y="48" text-anchor="middle" fill="#EA580C" font-weight="700">Context Window</text>
 </g>
-<g><line x1="530" y1="42" x2="582" y2="42" stroke="#F97316" stroke-width="3" marker-end="url(#arrowOrange)"/><text x="556" y="28" text-anchor="middle" fill="#F97316" font-size="12" font-weight="700">Context</text></g>
+<g>
+<line x1="530" y1="42" x2="582" y2="42" stroke="#F97316" stroke-width="3" marker-end="url(#arrowOrange)"/>
+<text x="556" y="28" text-anchor="middle" fill="#F97316" font-size="12" font-weight="700">Context</text>
+</g>
 <g transform="translate(590, 10)">
 <rect width="230" height="65" rx="10" fill="#F5F3FF" stroke="#8B5CF6" stroke-width="2"/>
 <text x="115" y="26" text-anchor="middle" font-size="15">Stage 3</text>
@@ -865,14 +1062,14 @@ Watch all three concepts work together to write a sentence word-by-word.
 3. Guesses & chooses the next word
 <span class="thinking-badge" x-show="isLoadingPipeline" style="margin-left: 6px; padding: 2px 8px; font-size: 12px;">Thinking...</span>
 </h4>
-<div style="display: flex; flex-direction: row; justify-content: center; align-items: flex-end; gap: 16px; margin-top: 16px; height: 75px;">
+<div style="display: flex; justify-content: center; gap: 16px; margin-top: 6px;">
 <template x-for="item in pipelineChoices">
-<div style="display: flex; flex-direction: column; justify-content: flex-end; align-items: center; width: 48px; height: 100%;">
-<span style="color: #1E293B; font-size: 12px; font-weight: 700; margin-bottom: 2px;" x-text="item.prob + '%'"></span>
-<div :style="'height: ' + item.prob + '%; width: 100%; background-color: ' + item.color + '; border-radius: 3px 3px 0 0;'"></div>
-<div style="width: 100%; border-top: 2px solid #CBD5E1; text-align: center; padding-top: 2px;">
-<span style="color: #0F172A; font-size: 13px; font-weight: 700;" x-text="item.word"></span>
+<div style="display: flex; flex-direction: column; align-items: center; width: 48px;">
+<span style="color: #1E293B; font-size: 12px; font-weight: 700;" x-text="item.prob + '%'"></span>
+<div style="height: 40px; width: 100%; display: flex; align-items: flex-end; justify-content: center; border-bottom: 1px solid #CBD5E1;">
+<div class="chart-bar-element" :style="'height: ' + item.prob + '%; width: 100%; background-color: ' + item.color + '; border-radius: 3px 3px 0 0;'"></div>
 </div>
+<span style="width: 100%; text-align: center; color: #0F172A; margin-top: 2px; font-size: 13px; font-weight: 700;" x-text="item.word"></span>
 </div>
 </template>
 </div>
@@ -896,7 +1093,6 @@ document.addEventListener('alpine:init', () => {
     wordCount: 0,
     tokenBlocks: [],
     prompt: 'The space rocket safely landed on the',
-    hasSubmitted: false,
     predictability: 0,
     currentChoices: [],
     isLoadingChoices: false,
@@ -907,9 +1103,18 @@ document.addEventListener('alpine:init', () => {
     clippedNextWord: '...',
     isLoadingClipped: false,
     storyOptions: [
-      { title: "Story 1: The Secret Hero", text: "Deep inside the hidden dark cave of Gotham City a hero wears a black cape and fights ..." },
-      { title: "Story 2: The Striped Animal", text: "With sharp yellow teeth orange fur and dark black stripes it is a very big ..." },
-      { title: "Story 3: The Celebration Party", text: "To celebrate turning ten years old there are colorful presents and bright glowing candles on the kitchen ..." }
+      {
+        title: "Story 1: The Secret Hero",
+        text: "Deep inside the hidden dark cave of Gotham City a hero wears a black cape and fights ..."
+      },
+      {
+        title: "Story 2: The Striped Animal",
+        text: "With sharp yellow teeth orange fur and dark black stripes it is a very big ..."
+      },
+      {
+        title: "Story 3: The Celebration Party",
+        text: "To celebrate turning ten years old there are colorful presents and bright glowing candles on the kitchen ..."
+      }
     ],
     pipelineWords: ['The', 'little', 'robot'],
     pipelineWindow: 4,
@@ -931,6 +1136,7 @@ document.addEventListener('alpine:init', () => {
       const loadingEl = document.getElementById('fallback-loading-wrap');
       if (loadingEl) loadingEl.style.display = 'none';
       this.executeTokenAnalysis();
+      this.fetchNextWordChoices();
       this.loadSelectedStoryline();
       this.$watch('inputText', () => this.executeTokenAnalysis());
     },
@@ -952,6 +1158,7 @@ document.addEventListener('alpine:init', () => {
     goToPage(pageNum) {
       this.activePage = pageNum;
       if (pageNum === 4) this.executeTokenAnalysis();
+      if (pageNum === 8 && this.prompt && this.prompt.trim() !== '') this.fetchNextWordChoices();
       if (pageNum === 12) this.loadSelectedStoryline();
       if (pageNum === 14) this.refreshPipelineTokens();
     },
@@ -981,14 +1188,15 @@ document.addEventListener('alpine:init', () => {
     },
 
     handlePromptInput() {
-      this.hasSubmitted = false;
-      this.currentChoices = [];
-      if (this.debounceTimer) clearTimeout(this.debounceTimer);
+      if (!this.prompt || this.prompt.trim() === '') {
+        this.clearPromptInput();
+      } else {
+        this.debouncedFetchNextWord();
+      }
     },
 
     clearPromptInput() {
       this.prompt = '';
-      this.hasSubmitted = false;
       this.currentChoices = [];
       this.isLoadingChoices = false;
       if (this.debounceTimer) clearTimeout(this.debounceTimer);
@@ -999,7 +1207,6 @@ document.addEventListener('alpine:init', () => {
         this.clearPromptInput();
         return;
       }
-      if (!this.hasSubmitted) return;
       this.isLoadingChoices = true;
       if (this.debounceTimer) clearTimeout(this.debounceTimer);
       this.debounceTimer = setTimeout(() => this.fetchNextWordChoices(), 500);
@@ -1011,7 +1218,6 @@ document.addEventListener('alpine:init', () => {
         return;
       }
 
-      this.hasSubmitted = true;
       this.isLoadingChoices = true;
       const temp = (100 - parseInt(this.predictability)) / 100;
 
@@ -1027,7 +1233,6 @@ document.addEventListener('alpine:init', () => {
 
         const data = await response.json();
         if (data.choices && Array.isArray(data.choices)) {
-          // Sort strictly highest to lowest percentage
           const sorted = [...data.choices].sort((a, b) => parseFloat(b.prob) - parseFloat(a.prob));
           
           this.currentChoices = sorted.map((item, idx) => ({
@@ -1037,24 +1242,7 @@ document.addEventListener('alpine:init', () => {
           }));
         }
       } catch (error) {
-        // FIX 3: MOCK API RESPONSE WHEN NO BACKEND EXISTS
-        console.warn("API request failed. Generating mock response to demonstrate horizontal sorting.");
-        const mockData = [
-          { word: "moon", prob: 82 },
-          { word: "ground", prob: 12 },
-          { word: "stars", prob: 4 },
-          { word: "ocean", prob: 1 },
-          { word: "sun", prob: 1 }
-        ];
-        
-        // Ensure strictly sorted highest to lowest left-to-right
-        const sortedMock = mockData.sort((a, b) => parseFloat(b.prob) - parseFloat(a.prob));
-        
-        this.currentChoices = sortedMock.map((item, idx) => ({
-          word: item.word,
-          prob: item.prob,
-          color: this.colorPalette[idx] || '#94A3B8'
-        }));
+        console.error("Failed to fetch choices from API:", error);
       } finally {
         this.isLoadingChoices = false;
       }
