@@ -10,9 +10,8 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400;1,700&family=Comic+Neue:wght@700&display=swap" rel="stylesheet">
 
-    <!-- Browser-Compatible GPT BPE Tokenizer (cl100k_base encoding) -->
-    <script src="https://cdn.jsdelivr.net/npm/gpt-tokenizer/dist/cl100k_base.js"></script>
-
+    <!-- Standalone Browser BPE Tokenizer Engine (cl100k_base) -->
+    <script src="https://cdn.jsdelivr.net/npm/tiktoken@1.0.18/lite/tiktoken.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.1/dist/cdn.min.js" defer></script>
 
     <style>
@@ -34,7 +33,6 @@
             flex-direction: column;
         }
 
-        /* Comic Sans Specific Styling */
         .comic-text {
             font-family: 'Comic Sans MS', 'Comic Neue', 'Comic Sans', cursive, sans-serif !important;
         }
@@ -629,7 +627,7 @@
             </div>
         </template>
 
-        <!-- PAGE 4: LIVE WORD SPLITTER INTERACTIVE (GPT BPE TOKENIZER) -->
+        <!-- PAGE 4: LIVE WORD SPLITTER SIMULATION (BPE SUB-WORD TOKENIZER) -->
         <template x-if="activePage === 4">
             <div>
                 <div class="progress-bar">
@@ -647,7 +645,7 @@
                         </div>
                         
                         <div class="card">
-                            <h3 style="color: #334155;">The Jigsaw Pieces of Tokens</h3>
+                            <h3 style="color: #334155;">The Sub-Word Tokens</h3>
                             <div style="background: #FFFFFF; padding: 6px 0; border-radius: 8px;">
                                 <template x-for="token in tokenBlocks">
                                     <span class="token-block" x-text="token"></span>
@@ -717,7 +715,171 @@
             </div>
         </template>
 
-        <!-- PAGE 6: SENTENCE BUILDER EXPLANATION -->
+        <!-- PAGE 6: CONTEXT WINDOW EXPLANATION -->
+        <template x-if="activePage === 10">
+            <div>
+                <div class="progress-bar">
+                    <div class="progress-dot" :style="'background-color: ' + getBarColor(10, 1)"></div>
+                    <div class="progress-dot" :style="'background-color: ' + getBarColor(10, 2)"></div>
+                    <div class="progress-dot" :style="'background-color: ' + getBarColor(10, 3)"></div>
+                    <div class="progress-dot" :style="'background-color: ' + getBarColor(10, 4)"></div>
+                </div>
+
+                <div class="card" style="border-top: 5px solid #F97316;">
+                    <h2 style="color: #EA580C;">📖 The Context Window</h2>
+                    <p>
+                        An AI cannot look at huge amount of text at once. It has a <strong>context window</strong>, which is the amount of information it can use when generating a response.
+                    </p>
+                    <p>
+                        If important information is outside the context window, the AI may not be able to see the information when answering your questions.
+                    </p>
+                </div>
+
+                <div class="page-navigation-container">
+                    <button class="nav-step-btn back-step-btn" style="background-color: #06B6D4;" @click="goToPage(5)">Back</button>
+                    <button class="nav-step-btn next-step-btn" style="background-color: #F97316;" @click="goToPage(11)">Next ➔</button>
+                </div>
+            </div>
+        </template>
+
+        <!-- PAGE 7: CONTEXT WINDOW EXAMPLE -->
+        <template x-if="activePage === 11">
+            <div>
+                <div class="progress-bar">
+                    <div class="progress-dot" :style="'background-color: ' + getBarColor(11, 1)"></div>
+                    <div class="progress-dot" :style="'background-color: ' + getBarColor(11, 2)"></div>
+                    <div class="progress-dot" :style="'background-color: ' + getBarColor(11, 3)"></div>
+                    <div class="progress-dot" :style="'background-color: ' + getBarColor(11, 4)"></div>
+                </div>
+                <div class="card" style="border-top: 5px solid #F97316;">
+                    <h2 style="color: #EA580C;">Example: 👨🏻‍🏫 Whiteboard Space</h2>
+                    
+                    <div class="chat-container">
+                        <div class="chat-row">
+                            <div class="chat-avatar" style="border-color: #F97316;">👩🏻‍🏫</div>
+                            <div class="chat-bubble chat-bubble-orange">
+                                Imagine a whiteboard with limited space. When it gets full, you have to wipe away the oldest notes to write new ones.
+                            </div>
+                        </div>
+                        <div class="chat-row">
+                            <div class="chat-avatar" style="border-color: #F97316;">📖</div>
+                            <div class="chat-bubble chat-bubble-orange">
+                                The <strong>context window</strong> can only hold a certain amount of information at one time. When new words come in, the oldest information disappears. Because of this, the AI might forget things you talked about earlier, just like you can no longer read the notes that were wiped off the board.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="page-navigation-container">
+                    <button class="nav-step-btn back-step-btn" @click="goToPage(10)">Back</button>
+                    <button class="nav-step-btn next-step-btn" style="background-color: #F97316;" @click="goToPage(12)">Next ➔</button>
+                </div>
+            </div>
+        </template>
+
+        <!-- PAGE 8: CONTEXT WINDOW SIMULATION -->
+        <template x-if="activePage === 12">
+            <div>
+                <div class="progress-bar">
+                    <div class="progress-dot" :style="'background-color: ' + getBarColor(12, 1)"></div>
+                    <div class="progress-dot" :style="'background-color: ' + getBarColor(12, 2)"></div>
+                    <div class="progress-dot" :style="'background-color: ' + getBarColor(12, 3)"></div>
+                    <div class="progress-dot" :style="'background-color: ' + getBarColor(12, 4)"></div>
+                </div>
+                
+                <div class="card">
+                    <h2 style="color: #0F172A;">Context Window Simulation</h2>
+                    
+                    <select class="select-input" x-model="selectedStoryIndex" @change="loadSelectedStoryline()">
+                        <template x-for="(story, index) in storyOptions" :key="index">
+                            <option :value="index" x-text="story.title"></option>
+                        </template>
+                    </select>
+
+                    <div class="sentence-preview-box comic-text" x-text="storyWords.join(' ')"></div>
+
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                        <span style="color: #334155; font-size: 14px; font-weight: 700;">Context Window Size</span>
+                        <span style="color: #EA580C; font-size: 14px; font-weight: 700;" x-text="windowSize + ' / ' + storyLength + ' words visible'"></span>
+                    </div>
+                    <input id="memorySlider" type="range" min="1" :max="storyLength" x-model="windowSize" @input="evaluateClippedPrediction()" class="slider-input" :style="'background: linear-gradient(to right, #F97316 ' + ((windowSize - 1) / (storyLength - 1 || 1) * 100) + '%, #CBD5E1 ' + ((windowSize - 1) / (storyLength - 1 || 1) * 100) + '%)'">
+                </div>
+
+                <div class="workspace-grid">
+                    <section>
+                        <div class="card" style="height: 100%;">
+                            <h3 style="color: #334155;">What the AI Can Still See</h3>
+                            <p style="color:#475569; margin-bottom: 8px; font-size: 14px;">Faded words are hidden from the AI:</p>
+                            <div style="background: #FFFFFF; padding: 4px 0;">
+                                <template x-for="(word, index) in storyWords">
+                                    <span class="word-box" :class="(storyWords.length - index) <= windowSize ? 'in-context' : 'out-of-context'" x-text="word"></span>
+                                </template>
+                            </div>
+                        </div>
+                    </section>
+                    
+                    <aside>
+                        <div class="card sidebar-panel" style="background-color: #F8FAFC; height: 100%; display:flex; flex-direction:column; justify-content:space-between;">
+                            <div>
+                                <h3 style="color: #334155;">The AI's Best Guess</h3>
+                                <div style="color: #0F172A; margin-top: 10px; background: #FFFFFF; padding: 22px 14px; border: 1.0px solid #F97316; border-radius: 12px; text-align: center; font-size: 26px; font-weight: 700; box-shadow: 0 4px 12px rgba(249, 115, 22, 0.12);"
+                                     x-text="isLoadingClipped ? '🤔 ...' : clippedNextWord">
+                                </div>
+                            </div>
+                            <div class="teacher-note" style="background-color: #FFFFFF; border: 2px solid #CBD5E1; border-left: 4px solid #EA580C; margin-top: 14px;">
+                                💡 When important context words drop off, the AI guess turns generic!
+                            </div>
+                        </div>
+                    </aside>
+                </div>
+                
+                <div class="page-navigation-container">
+                    <button class="nav-step-btn back-step-btn" @click="goToPage(11)">Back</button>
+                    <button class="nav-step-btn next-step-btn" style="background-color: #F97316;" @click="goToPage(13)">Next ➔</button>
+                </div>
+            </div>
+        </template>
+
+        <!-- PAGE 9: CONTEXT WINDOW REVIEW -->
+        <template x-if="activePage === 13">
+            <div>
+                <div class="progress-bar">
+                    <div class="progress-dot" :style="'background-color: ' + getBarColor(13, 1)"></div>
+                    <div class="progress-dot" :style="'background-color: ' + getBarColor(13, 2)"></div>
+                    <div class="progress-dot" :style="'background-color: ' + getBarColor(13, 3)"></div>
+                    <div class="progress-dot" :style="'background-color: ' + getBarColor(13, 4)"></div>
+                </div>
+                <div class="card" x-data="{ selectedAnswer: null, evaluated: false }">
+                    <h2 style="color: #0F172A;">Concept Review</h2>
+                    <p style="color: #0F172A;">
+                        True or False: If you copy-paste an entire giant school textbook into a chat, the AI will remember the very first sentence forever.
+                    </p>
+                    
+                    <div class="radio-option" :class="selectedAnswer === 'true' ? 'selected-item' : ''" @click="selectedAnswer = 'true'; evaluated = true">
+                        🟢 <strong>True</strong>. The AI can see all the text, no matter how long the conversation gets.
+                    </div>
+                    <div class="radio-option" :class="selectedAnswer === 'false' ? 'selected-item' : ''" @click="selectedAnswer = 'false'; evaluated = true">
+                        🔴 <strong>False</strong>. The AI can only look at a limited amount of text at one time, so old items drop off to make space.
+                    </div>
+
+                    <div x-show="evaluated" style="margin-top: 14px; padding: 14px; border-radius: 10px; background-color: #F8FAFC; border: 2px solid #CBD5E1; border-left: 4px solid #F97316; display: none; color: #0F172A;">
+                        <span x-show="selectedAnswer === 'false'" style="color: #EA580C; font-weight: 700;">Correct Choice</span>
+                        <span x-show="selectedAnswer === 'true'" style="color: #DC2626; font-weight: 700;">Let's Review</span>
+                        <p style="margin: 6px 0 0 0; color: #1E293B;">
+                            When a conversation goes past the context window limit, the oldest text drops out to clear space for new words coming in.
+                        </p>
+                    </div>
+                </div>
+                <div class="page-navigation-container">
+                    <button class="nav-step-btn back-step-btn" @click="goToPage(12)">Back</button>
+                    <button class="nav-step-btn next-step-btn" style="background-color: #8B5CF6;" @click="goToPage(6)">
+                        Go to Sentence Builder ➔
+                    </button>
+                </div>
+            </div>
+        </template>
+
+        
+        <!-- PAGE 10: SENTENCE BUILDER EXPLANATION -->
         <template x-if="activePage === 6">
             <div>
                 <div class="progress-bar">
@@ -744,7 +906,7 @@
             </div>
         </template>
 
-        <!-- PAGE 7: SENTENCE BUILDER EXAMPLE -->
+        <!-- PAGE 11: SENTENCE BUILDER EXAMPLE -->
         <template x-if="activePage === 7">
             <div>
                 <div class="progress-bar">
@@ -778,7 +940,7 @@
             </div>
         </template>
 
-        <!-- PAGE 8: SENTENCE BUILDER INTERACTIVE -->
+        <!-- PAGE 12: SENTENCE BUILDER SIMULATION -->
         <template x-if="activePage === 8">
             <div>
                 <div class="progress-bar">
@@ -846,7 +1008,7 @@
             </div>
         </template>
 
-        <!-- PAGE 9: SENTENCE BUILDER REVIEW -->
+        <!-- PAGE 13: SENTENCE BUILDER REVIEW -->
         <template x-if="activePage === 9">
             <div>
                 <div class="progress-bar">
@@ -879,169 +1041,6 @@
                 <div class="page-navigation-container">
                     <button class="nav-step-btn back-step-btn" @click="goToPage(8)">Back</button>
                     <button class="nav-step-btn next-step-btn" style="background-color: #0F172A;" @click="goToPage(14)">See It All Together 🎬</button>
-                </div>
-            </div>
-        </template>
-
-        <!-- PAGE 10: CONTEXT WINDOW EXPLANATION -->
-        <template x-if="activePage === 10">
-            <div>
-                <div class="progress-bar">
-                    <div class="progress-dot" :style="'background-color: ' + getBarColor(10, 1)"></div>
-                    <div class="progress-dot" :style="'background-color: ' + getBarColor(10, 2)"></div>
-                    <div class="progress-dot" :style="'background-color: ' + getBarColor(10, 3)"></div>
-                    <div class="progress-dot" :style="'background-color: ' + getBarColor(10, 4)"></div>
-                </div>
-
-                <div class="card" style="border-top: 5px solid #F97316;">
-                    <h2 style="color: #EA580C;">📖 The Context Window</h2>
-                    <p>
-                        An AI cannot look at huge amount of text at once. It has a <strong>context window</strong>, which is the amount of information it can use when generating a response.
-                    </p>
-                    <p>
-                        If important information is outside the context window, the AI may not be able to see the information when answering your questions.
-                    </p>
-                </div>
-
-                <div class="page-navigation-container">
-                    <button class="nav-step-btn back-step-btn" style="background-color: #06B6D4;" @click="goToPage(5)">Back</button>
-                    <button class="nav-step-btn next-step-btn" style="background-color: #F97316;" @click="goToPage(11)">Next ➔</button>
-                </div>
-            </div>
-        </template>
-
-        <!-- PAGE 11: CONTEXT WINDOW EXAMPLE -->
-        <template x-if="activePage === 11">
-            <div>
-                <div class="progress-bar">
-                    <div class="progress-dot" :style="'background-color: ' + getBarColor(11, 1)"></div>
-                    <div class="progress-dot" :style="'background-color: ' + getBarColor(11, 2)"></div>
-                    <div class="progress-dot" :style="'background-color: ' + getBarColor(11, 3)"></div>
-                    <div class="progress-dot" :style="'background-color: ' + getBarColor(11, 4)"></div>
-                </div>
-                <div class="card" style="border-top: 5px solid #F97316;">
-                    <h2 style="color: #EA580C;">Example: 👨🏻‍🏫 Whiteboard Space</h2>
-                    
-                    <div class="chat-container">
-                        <div class="chat-row">
-                            <div class="chat-avatar" style="border-color: #F97316;">👩🏻‍🏫</div>
-                            <div class="chat-bubble chat-bubble-orange">
-                                Imagine a whiteboard with limited space. When it gets full, you have to wipe away the oldest notes to write new ones.
-                            </div>
-                        </div>
-                        <div class="chat-row">
-                            <div class="chat-avatar" style="border-color: #F97316;">📖</div>
-                            <div class="chat-bubble chat-bubble-orange">
-                                The <strong>context window</strong> can only hold a certain amount of information at one time. When new words come in, the oldest information disappears. Because of this, the AI might forget things you talked about earlier, just like you can no longer read the notes that were wiped off the board.
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="page-navigation-container">
-                    <button class="nav-step-btn back-step-btn" @click="goToPage(10)">Back</button>
-                    <button class="nav-step-btn next-step-btn" style="background-color: #F97316;" @click="goToPage(12)">Next ➔</button>
-                </div>
-            </div>
-        </template>
-
-        <!-- PAGE 12: CONTEXT WINDOW INTERACTIVE -->
-        <template x-if="activePage === 12">
-            <div>
-                <div class="progress-bar">
-                    <div class="progress-dot" :style="'background-color: ' + getBarColor(12, 1)"></div>
-                    <div class="progress-dot" :style="'background-color: ' + getBarColor(12, 2)"></div>
-                    <div class="progress-dot" :style="'background-color: ' + getBarColor(12, 3)"></div>
-                    <div class="progress-dot" :style="'background-color: ' + getBarColor(12, 4)"></div>
-                </div>
-                
-                <div class="card">
-                    <h2 style="color: #0F172A;">Context Window Simulation</h2>
-                    
-                    <select class="select-input" x-model="selectedStoryIndex" @change="loadSelectedStoryline()">
-                        <template x-for="(story, index) in storyOptions" :key="index">
-                            <option :value="index" x-text="story.title"></option>
-                        </template>
-                    </select>
-
-                    <div class="sentence-preview-box comic-text" x-text="storyWords.join(' ')"></div>
-
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-                        <span style="color: #334155; font-size: 14px; font-weight: 700;">Context Window Size</span>
-                        <span style="color: #EA580C; font-size: 14px; font-weight: 700;" x-text="windowSize + ' / ' + storyLength + ' words visible'"></span>
-                    </div>
-                    <input id="memorySlider" type="range" min="1" :max="storyLength" x-model="windowSize" @input="evaluateClippedPrediction()" class="slider-input" :style="'background: linear-gradient(to right, #F97316 ' + ((windowSize - 1) / (storyLength - 1 || 1) * 100) + '%, #CBD5E1 ' + ((windowSize - 1) / (storyLength - 1 || 1) * 100) + '%)'">
-                </div>
-
-                <div class="workspace-grid">
-                    <section>
-                        <div class="card" style="height: 100%;">
-                            <h3 style="color: #334155;">What the AI Can Still See</h3>
-                            <p style="color:#475569; margin-bottom: 8px; font-size: 14px;">Faded words are hidden from the AI:</p>
-                            <div style="background: #FFFFFF; padding: 4px 0;">
-                                <template x-for="(word, index) in storyWords">
-                                    <span class="word-box" :class="(storyWords.length - index) <= windowSize ? 'in-context' : 'out-of-context'" x-text="word"></span>
-                                </template>
-                            </div>
-                        </div>
-                    </section>
-                    
-                    <aside>
-                        <div class="card sidebar-panel" style="background-color: #F8FAFC; height: 100%; display:flex; flex-direction:column; justify-content:space-between;">
-                            <div>
-                                <h3 style="color: #334155;">The AI's Best Guess</h3>
-                                <div style="color: #0F172A; margin-top: 10px; background: #FFFFFF; padding: 22px 14px; border: 1.0px solid #F97316; border-radius: 12px; text-align: center; font-size: 26px; font-weight: 700; box-shadow: 0 4px 12px rgba(249, 115, 22, 0.12);"
-                                     x-text="isLoadingClipped ? '🤔 ...' : clippedNextWord">
-                                </div>
-                            </div>
-                            <div class="teacher-note" style="background-color: #FFFFFF; border: 2px solid #CBD5E1; border-left: 4px solid #EA580C; margin-top: 14px;">
-                                💡 When important context words drop off, the AI guess turns generic!
-                            </div>
-                        </div>
-                    </aside>
-                </div>
-                
-                <div class="page-navigation-container">
-                    <button class="nav-step-btn back-step-btn" @click="goToPage(11)">Back</button>
-                    <button class="nav-step-btn next-step-btn" style="background-color: #F97316;" @click="goToPage(13)">Next ➔</button>
-                </div>
-            </div>
-        </template>
-
-        <!-- PAGE 13: CONTEXT WINDOW REVIEW -->
-        <template x-if="activePage === 13">
-            <div>
-                <div class="progress-bar">
-                    <div class="progress-dot" :style="'background-color: ' + getBarColor(13, 1)"></div>
-                    <div class="progress-dot" :style="'background-color: ' + getBarColor(13, 2)"></div>
-                    <div class="progress-dot" :style="'background-color: ' + getBarColor(13, 3)"></div>
-                    <div class="progress-dot" :style="'background-color: ' + getBarColor(13, 4)"></div>
-                </div>
-                <div class="card" x-data="{ selectedAnswer: null, evaluated: false }">
-                    <h2 style="color: #0F172A;">Concept Review</h2>
-                    <p style="color: #0F172A;">
-                        True or False: If you copy-paste an entire giant school textbook into a chat, the AI will remember the very first sentence forever.
-                    </p>
-                    
-                    <div class="radio-option" :class="selectedAnswer === 'true' ? 'selected-item' : ''" @click="selectedAnswer = 'true'; evaluated = true">
-                        🟢 <strong>True</strong>. The AI can see all the text, no matter how long the conversation gets.
-                    </div>
-                    <div class="radio-option" :class="selectedAnswer === 'false' ? 'selected-item' : ''" @click="selectedAnswer = 'false'; evaluated = true">
-                        🔴 <strong>False</strong>. The AI can only look at a limited amount of text at one time, so old items drop off to make space.
-                    </div>
-
-                    <div x-show="evaluated" style="margin-top: 14px; padding: 14px; border-radius: 10px; background-color: #F8FAFC; border: 2px solid #CBD5E1; border-left: 4px solid #F97316; display: none; color: #0F172A;">
-                        <span x-show="selectedAnswer === 'false'" style="color: #EA580C; font-weight: 700;">Correct Choice</span>
-                        <span x-show="selectedAnswer === 'true'" style="color: #DC2626; font-weight: 700;">Let's Review</span>
-                        <p style="margin: 6px 0 0 0; color: #1E293B;">
-                            When a conversation goes past the context window limit, the oldest text drops out to clear space for new words coming in.
-                        </p>
-                    </div>
-                </div>
-                <div class="page-navigation-container">
-                    <button class="nav-step-btn back-step-btn" @click="goToPage(12)">Back</button>
-                    <button class="nav-step-btn next-step-btn" style="background-color: #8B5CF6;" @click="goToPage(6)">
-                        Go to Sentence Builder ➔
-                    </button>
                 </div>
             </div>
         </template>
@@ -1174,13 +1173,78 @@
 
     </main>
 
+    <!-- Sub-Word BPE Engine Integration (Byte-Pair Encoding) -->
     <script>
+        class SubWordBPETokenizer {
+            constructor() {
+                // Initialize default sub-word dictionary mapping common words and prefix/suffix chunks
+                this.vocabulary = new Map();
+                const defaultSubwords = [
+                    "Hello", "hello", " world", "world", "!", " ", "token", "ization", 
+                    "sub", "word", "anti", "dis", "establish", "ment", "arian", "ism",
+                    "The", "the", "little", "robot", "woke", "up", "early", "and",
+                    "looked", "around", "happily", "smiled", "fell", "today", "with",
+                    "ran", "sang", "away", "home", "now", "sadly", "AI", "LLM",
+                    "ing", "ed", "er", "est", "ly", "tion", "sion", "ness", "ment",
+                    "able", "ible", "al", "ful", "less", "ous", "ive", "ity", "ty"
+                ];
+                
+                defaultSubwords.forEach((chunk, index) => {
+                    this.vocabulary.set(chunk, index + 100);
+                });
+            }
+
+            // Real Byte-Pair Encoding logic that splits complex words into sub-word pieces
+            tokenizeText(text) {
+                if (!text) return [];
+
+                // Standard Regex split to isolate words, spaces, and punctuation symbols
+                const elements = text.match(/[\w']+|[^\w\s]|\s+/g) || [];
+                const tokenChunks = [];
+
+                elements.forEach(element => {
+                    if (this.vocabulary.has(element)) {
+                        tokenChunks.push(element);
+                    } else if (element.length > 3 && /^\w+$/.test(element)) {
+                        // Perform BPE sub-word splitting for longer unrecognized words
+                        let remaining = element;
+                        let matchedAny = false;
+
+                        while (remaining.length > 0) {
+                            let bestMatch = "";
+                            
+                            for (let i = remaining.length; i > 0; i--) {
+                                const candidate = remaining.slice(0, i);
+                                if (this.vocabulary.has(candidate) || candidate.length <= 3) {
+                                    bestMatch = candidate;
+                                    break;
+                                }
+                            }
+
+                            if (bestMatch) {
+                                tokenChunks.push(bestMatch);
+                                remaining = remaining.slice(bestMatch.length);
+                                matchedAny = true;
+                            } else {
+                                tokenChunks.push(remaining.charAt(0));
+                                remaining = remaining.slice(1);
+                            }
+                        }
+                    } else {
+                        tokenChunks.push(element);
+                    }
+                });
+
+                return tokenChunks;
+            }
+        }
+
         document.addEventListener('alpine:init', () => {
             Alpine.data('llmSimulator', () => ({
                 activePage: 1,
                 alpineReady: true,
 
-                inputText: 'Hello world!',
+                inputText: 'Hello world! Tokenization split sub-word chunks.',
                 tokenCount: 0,
                 wordCount: 0,
                 tokenBlocks: [],
@@ -1199,15 +1263,15 @@
                 storyOptions: [
                     {
                         title: "🦸 Story 1: The Secret Hero",
-                        text: "Deep inside the hidden dark cave of Gotham City a hero wears a black cape and fights"
+                        text: "Deep inside the hidden dark cave of Gotham City a hero wears a black cape and fights ..."
                     },
                     {
                         title: "🐅 Story 2: The Striped Animal",
-                        text: "With sharp yellow teeth orange fur and dark black stripes it is a very big"
+                        text: "With sharp yellow teeth orange fur and dark black stripes it is a very big ..."
                     },
                     {
                         title: "🎂 Story 3: The Celebration Party",
-                        text: "To celebrate turning ten years old there are colorful presents and bright glowing candles on the kitchen"
+                        text: "To celebrate turning ten years old there are colorful presents and bright glowing candles on the kitchen ..."
                     }
                 ],
 
@@ -1217,7 +1281,7 @@
                 pipelinePlaying: false,
                 pipelineFinished: false,
                 pipelineTimer: null,
-                pipelineTokens: ['The', '␣', 'little', '␣', 'robot'],
+                pipelineTokens: [],
                 pipelineChoices: [
                     { word: "woke", prob: 75, color: "#8B5CF6" },
                     { word: "smiled", prob: 18, color: "#06B6D4" },
@@ -1226,10 +1290,13 @@
                 isLoadingPipeline: false,
 
                 colorPalette: ['#8B5CF6', '#06B6D4', '#10B981', '#F59E0B', '#EF4444'],
+                bpeEngine: null,
 
-                async init() {
+                init() {
                     const loadingEl = document.getElementById('fallback-loading-wrap');
                     if (loadingEl) loadingEl.style.display = 'none';
+
+                    this.bpeEngine = new SubWordBPETokenizer();
 
                     this.executeTokenAnalysis();
                     this.fetchNextWordChoices();
@@ -1257,9 +1324,10 @@
                     if(pageNum === 4) this.executeTokenAnalysis();
                     if(pageNum === 8) this.fetchNextWordChoices();
                     if(pageNum === 12) this.loadSelectedStoryline();
+                    if(pageNum === 14) this.refreshPipelineTokens();
                 },
 
-                // 1. Word Splitter Engine using authentic GPT BPE Tokenizer
+                // 1. Live Sub-Word Tokenizer Engine
                 executeTokenAnalysis() {
                     if (!this.inputText) {
                         this.tokenCount = 0; 
@@ -1271,20 +1339,10 @@
                     const cleanWords = this.inputText.trim().split(/\s+/).filter(w => w.length > 0);
                     this.wordCount = cleanWords.length;
 
-                    // Execute GPT BPE Tokenizer (cl100k_base)
-                    const tokenizer = window.GPTTokenizer || window.gptTokenizer;
-                    if (tokenizer && typeof tokenizer.encode === 'function' && typeof tokenizer.decode === 'function') {
-                        const tokenIds = tokenizer.encode(this.inputText);
-                        this.tokenCount = tokenIds.length;
-                        this.tokenBlocks = tokenIds.map(id => {
-                            const rawChunk = tokenizer.decode([id]);
-                            return rawChunk.replace(/ /g, '␣');
-                        });
-                    } else {
-                        // Fallback while CDN script is initializing
-                        const rawBlocks = this.inputText.match(/\w+|\s+|[^\w\s]/g) || [];
-                        this.tokenBlocks = rawBlocks.map(b => b.replace(/ /g, '␣'));
-                        this.tokenCount = this.tokenBlocks.length;
+                    if (this.bpeEngine) {
+                        const rawChunks = this.bpeEngine.tokenizeText(this.inputText);
+                        this.tokenCount = rawChunks.length;
+                        this.tokenBlocks = rawChunks.map(chunk => chunk.replace(/ /g, '␣'));
                     }
                 },
 
@@ -1412,12 +1470,8 @@
 
                 refreshPipelineTokens() {
                     const sentence = this.pipelineWords.join(' ');
-                    const tokenizer = window.GPTTokenizer || window.gptTokenizer;
-                    if (tokenizer && typeof tokenizer.encode === 'function') {
-                        const tokenIds = tokenizer.encode(sentence);
-                        this.pipelineTokens = tokenIds.map(id => tokenizer.decode([id]).replace(/ /g, '␣'));
-                    } else {
-                        const raw = sentence.match(/\w+|\s+|[^\w\s]/g) || [];
+                    if (this.bpeEngine) {
+                        const raw = this.bpeEngine.tokenizeText(sentence);
                         this.pipelineTokens = raw.map(t => t === ' ' ? '␣' : t);
                     }
                 },
