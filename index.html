@@ -896,13 +896,13 @@ The Sentence Builder learns by reading millions of books and websites online. It
   <button type="button" @click="clearPromptInput()" class="clear-btn">Clear</button>
 </div>
 
-<!-- DISPLAY PREDICTED WORD WITH RIGHT-ALIGNED INLINE SURE PERCENTAGE -->
+<!-- FIX 1: INLINE SURE PERCENTAGE / THINKING BADGE ALIGNED ON THE RIGHT SIDE OF PREVIEW BOX -->
 <div class="comic-text" x-show="hasSubmitted || isLoadingChoices" style="background: #0F172A; color: #F8FAFC; padding: 12px 16px; border-radius: 10px; border: 2px solid #1E293B; font-size: 18px; display: flex; align-items: center; justify-content: space-between; flex-wrap: nowrap; width: 100%;">
-  <div style="display: flex; align-items: center; gap: 6px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+  <div style="display: flex; align-items: center; gap: 6px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex-grow: 1;">
     <span x-text="prompt" style="color: #94A3B8;"></span> 
     <span style="border-bottom: 2px solid; font-weight: 700;" :style="'color: ' + selectedWordColor" x-text="selectedWord"></span>
   </div>
-  <div style="flex-shrink: 0; margin-left: auto;">
+  <div style="flex-shrink: 0; margin-left: 12px;">
     <span class="confidence-pill" :style="'background-color: ' + selectedWordColor" x-show="!isLoadingChoices && currentChoices.length > 0">
       <span x-text="selectedProb + '% sure'"></span>
     </span>
@@ -911,12 +911,11 @@ The Sentence Builder learns by reading millions of books and websites online. It
 </div>
 </div>
 
-<!-- HOW THE AI DECIDES CARD WITH HORIZONTAL SIDE-BY-SIDE BAR CHART -->
+<!-- FIX 2: HORIZONTAL SIDE-BY-SIDE BAR CHART LAYOUT (LEFT TO RIGHT) -->
 <div class="card">
 <h3 style="margin-bottom: 2px; color: #334155;">How the AI Decides</h3>
 <p class="section-subtitle">AI looks at several possible words, each word has its own percentage score:</p>
 
-<!-- HORIZONTAL ARRANGEMENT (LEFT TO RIGHT COLUMNS) -->
 <div x-show="hasSubmitted && currentChoices.length > 0" style="display: flex; flex-direction: row; justify-content: center; align-items: flex-end; gap: 24px; margin: 24px 0 12px 0; width: 100%;">
 <template x-for="(item, index) in currentChoices">
 <div style="display: flex; flex-direction: column; align-items: center; width: 56px;">
