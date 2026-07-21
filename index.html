@@ -430,13 +430,14 @@ header {
   background-color: #8B5CF6;
   color: #FFFFFF;
   border: none;
-  padding: 12px 20px;
+  padding: 10px 20px;
   border-radius: 10px;
   font-size: 16px;
   font-weight: 700;
   cursor: pointer;
   transition: background-color 0.2s ease;
-  white-space: nowrap;
+  margin-top: 8px;
+  display: inline-block;
 }
 .submit-btn:hover {
   background-color: #7C3AED;
@@ -867,10 +868,10 @@ The Sentence Builder learns by reading millions of books and websites online. It
 <h2 style="margin-bottom: 2px; color: #0F172A;">Complete the Sentence</h2>
 <p class="section-subtitle" style="margin-bottom: 0;">Type a sentence and see which word the AI guesses comes next</p>
 </div>
-<form @submit.prevent="fetchNextWordChoices()" style="display: flex; gap: 10px; margin: 10px 0;">
-  <input type="text" x-model="prompt" @keydown.enter.prevent="fetchNextWordChoices()" class="comic-text" style="flex-grow: 1; padding: 12px; border-radius: 10px; border: 2px solid #CBD5E1; box-sizing: border-box; background-color: #F8FAFC; color: #0F172A; font-size: 18px;">
-  <button type="submit" class="submit-btn">Submit</button>
-</form>
+<div style="margin: 10px 0;">
+  <input type="text" x-model="prompt" @keydown.enter="fetchNextWordChoices()" class="comic-text" style="width: 100%; padding: 12px; border-radius: 10px; border: 2px solid #CBD5E1; box-sizing: border-box; background-color: #F8FAFC; color: #0F172A; font-size: 18px;">
+  <button type="button" @click="fetchNextWordChoices()" class="submit-btn">Submit</button>
+</div>
 <div class="comic-text" style="background: #0F172A; color: #F8FAFC; padding: 12px 16px; border-radius: 10px; border: 2px solid #1E293B; font-size: 18px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
 <div>
 <span x-text="prompt" style="color: #94A3B8;"></span> <span style="border-bottom: 2px solid; font-weight: 700;" :style="'color: ' + selectedWordColor" x-text="selectedWord"></span>
@@ -887,7 +888,7 @@ The Sentence Builder learns by reading millions of books and websites online. It
 <h3 style="margin-bottom: 2px; color: #334155;">How the AI Decides</h3>
 <p class="section-subtitle">AI looks at several possible words, each word has its own percentage score:</p>
 <div style="display: flex; justify-content: center; gap: 24px; margin: 24px 0 12px 0;">
-<template x-for="(item, index) in sortedChoices">
+<template x-for="(item, index) in currentChoices">
 <div style="display: flex; flex-direction: column; align-items: center; width: 56px;">
 <div class="bar-container-wrapper" style="height: 100px; width: 100%; display: flex; align-items: flex-end; justify-content: center; border-bottom: 2px solid #CBD5E1; position: relative;">
 <div class="chart-bar-element" :style="'width: 100%; height: ' + (item.prob) + '%; background-color: ' + item.color + '; box-shadow: ' + (selectedIndex === index ? '0 0 6px ' + item.color : 'none') + '; border-radius: 4px 4px 0 0;'">
@@ -1123,10 +1124,6 @@ document.addEventListener('alpine:init', () => {
       this.$watch('inputText', () => this.executeTokenAnalysis());
     },
 
-    get sortedChoices() {
-      return [...this.currentChoices].sort((a, b) => b.prob - a.prob);
-    },
-
     getBarColor(currentPage, targetDot) {
       let activeColor = '#E2E8F0';
       if (currentPage >= 2 && currentPage <= 5) {
@@ -1200,10 +1197,12 @@ document.addEventListener('alpine:init', () => {
 
         const data = await response.json();
         if (data.choices && Array.isArray(data.choices)) {
-          const sorted = data.choices.sort((a, b) => b.prob - a.prob);
+          // Sort explicitly in descending order based on probability score
+          const sorted = data.choices.sort((a, b) => parseFloat(b.prob) - parseFloat(a.prob));
+          
           this.currentChoices = sorted.map((item, idx) => ({
             word: item.word,
-            prob: Math.round(item.prob),
+            prob: Math.round(parseFloat(item.prob)),
             color: this.colorPalette[idx] || '#94A3B8'
           }));
         }
@@ -1215,7 +1214,7 @@ document.addEventListener('alpine:init', () => {
     },
 
     getApparentIndex() {
-      if (!this.sortedChoices.length) return 0;
+      if (!this.currentChoices.length) return 0;
       const val = parseInt(this.predictability);
       if (val < 25) return 0;
       if (val < 50) return 1;
@@ -1226,12 +1225,12 @@ document.addEventListener('alpine:init', () => {
 
     get selectedIndex() {
       const idx = this.getApparentIndex();
-      return Math.min(idx, this.sortedChoices.length - 1);
+      return Math.min(idx, this.currentChoices.length - 1);
     },
 
-    get selectedWord() { return this.sortedChoices[this.selectedIndex]?.word || '...'; },
-    get selectedProb() { return this.sortedChoices[this.selectedIndex]?.prob || 0; },
-    get selectedWordColor() { return this.sortedChoices[this.selectedIndex]?.color || '#8B5CF6'; },
+    get selectedWord() { return this.currentChoices[this.selectedIndex]?.word || '...'; },
+    get selectedProb() { return this.currentChoices[this.selectedIndex]?.prob || 0; },
+    get selectedWordColor() { return this.currentChoices[this.selectedIndex]?.color || '#8B5CF6'; },
 
     loadSelectedStoryline() {
       const currentObj = this.storyOptions[this.selectedStoryIndex];
