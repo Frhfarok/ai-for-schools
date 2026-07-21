@@ -896,13 +896,13 @@ The Sentence Builder learns by reading millions of books and websites online. It
   <button type="button" @click="clearPromptInput()" class="clear-btn">Clear</button>
 </div>
 
-<!-- FIX 1: INLINE SURE PERCENTAGE / THINKING BADGE ALIGNED ON THE RIGHT SIDE OF PREVIEW BOX -->
+<!-- INLINE PREVIEW BOX FIXED WITH min-width: 0 FOR TRUE INLINE ALIGNMENT -->
 <div class="comic-text" x-show="hasSubmitted || isLoadingChoices" style="background: #0F172A; color: #F8FAFC; padding: 12px 16px; border-radius: 10px; border: 2px solid #1E293B; font-size: 18px; display: flex; align-items: center; justify-content: space-between; flex-wrap: nowrap; width: 100%;">
-  <div style="display: flex; align-items: center; gap: 6px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex-grow: 1;">
-    <span x-text="prompt" style="color: #94A3B8;"></span> 
-    <span style="border-bottom: 2px solid; font-weight: 700;" :style="'color: ' + selectedWordColor" x-text="selectedWord"></span>
+  <div style="display: flex; align-items: center; gap: 6px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; flex: 1;">
+    <span x-text="prompt" style="color: #94A3B8; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"></span> 
+    <span style="border-bottom: 2px solid; font-weight: 700; flex-shrink: 0;" :style="'color: ' + selectedWordColor" x-text="selectedWord"></span>
   </div>
-  <div style="flex-shrink: 0; margin-left: 12px;">
+  <div style="flex-shrink: 0; margin-left: 12px; display: flex; align-items: center;">
     <span class="confidence-pill" :style="'background-color: ' + selectedWordColor" x-show="!isLoadingChoices && currentChoices.length > 0">
       <span x-text="selectedProb + '% sure'"></span>
     </span>
@@ -911,20 +911,20 @@ The Sentence Builder learns by reading millions of books and websites online. It
 </div>
 </div>
 
-<!-- FIX 2: HORIZONTAL SIDE-BY-SIDE BAR CHART LAYOUT (LEFT TO RIGHT) -->
+<!-- BAR CHART FIXED WITH flex-wrap: nowrap AND align-items: stretch -->
 <div class="card">
 <h3 style="margin-bottom: 2px; color: #334155;">How the AI Decides</h3>
 <p class="section-subtitle">AI looks at several possible words, each word has its own percentage score:</p>
 
-<div x-show="hasSubmitted && currentChoices.length > 0" style="display: flex; flex-direction: row; justify-content: center; align-items: flex-end; gap: 24px; margin: 24px 0 12px 0; width: 100%;">
+<div x-show="hasSubmitted && currentChoices.length > 0" style="display: flex; flex-direction: row; flex-wrap: nowrap; justify-content: space-around; align-items: stretch; gap: 16px; margin: 24px 0 12px 0; width: 100%;">
 <template x-for="(item, index) in currentChoices">
-<div style="display: flex; flex-direction: column; align-items: center; width: 56px;">
+<div style="display: flex; flex-direction: column; align-items: center; flex: 1; max-width: 65px; min-width: 45px;">
 <div class="bar-container-wrapper" style="height: 100px; width: 100%; display: flex; align-items: flex-end; justify-content: center; border-bottom: 2px solid #CBD5E1; position: relative;">
 <div class="chart-bar-element" :style="'width: 100%; height: ' + (item.prob) + '%; background-color: ' + item.color + '; box-shadow: ' + (selectedIndex === index ? '0 0 6px ' + item.color : 'none') + '; border-radius: 4px 4px 0 0;'">
 <span style="position: absolute; top: -22px; left: 50%; transform: translateX(-50%); font-size: 13px; font-weight: 700; color: #0F172A; white-space: nowrap;" x-text="item.prob + '%'"></span>
 </div>
 </div>
-<span style="text-align: center; margin-top: 8px; width: 100%; font-size: 14px; font-weight: 700;" :style="'color: ' + (selectedIndex === index ? item.color : '#334155')" x-text="item.word"></span>
+<span style="text-align: center; margin-top: 8px; width: 100%; font-size: 14px; font-weight: 700; word-break: break-word;" :style="'color: ' + (selectedIndex === index ? item.color : '#334155')" x-text="item.word"></span>
 </div>
 </template>
 </div>
