@@ -1,5 +1,4 @@
 export default async function handler(req, res) {
-  // Allow POST requests only
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
@@ -8,6 +7,7 @@ export default async function handler(req, res) {
   const apiKey = process.env.GEMINI_API_KEY;
 
   if (!apiKey) {
+    console.error("Error: GEMINI_API_KEY is missing in Vercel environment variables.");
     return res.status(500).json({ error: 'Server configuration error: Missing API Key' });
   }
 
@@ -24,7 +24,8 @@ You MUST respond with raw JSON only matching this exact schema:
 Percentages must sum to 100. Do not include markdown formatting or backticks.`;
 
   try {
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+    // Targeting active gemini model string
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
     
     const apiResponse = await fetch(url, {
       method: 'POST',
@@ -43,6 +44,7 @@ Percentages must sum to 100. Do not include markdown formatting or backticks.`;
     const data = await apiResponse.json();
 
     if (!apiResponse.ok) {
+      console.error("Gemini API Error Detail:", data);
       throw new Error(data.error?.message || 'Gemini API Error');
     }
 
@@ -54,7 +56,7 @@ Percentages must sum to 100. Do not include markdown formatting or backticks.`;
   } catch (error) {
     console.error("Proxy error:", error);
     
-    // Return fallback structured data if rate-limited or failed
+    // Return structured fallback data on failure
     return res.status(200).json({
       choices: [
         { word: "next", prob: 50 },
