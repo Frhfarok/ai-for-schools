@@ -436,7 +436,7 @@ header {
   background-color: #8B5CF6;
   color: #FFFFFF;
   border: none;
-  padding: 12px 22px;
+  padding: 12px 20px;
   border-radius: 10px;
   font-size: 16px;
   font-weight: 700;
@@ -447,6 +447,22 @@ header {
 }
 .submit-btn:hover {
   background-color: #7C3AED;
+}
+.clear-btn {
+  background-color: #EF4444;
+  color: #FFFFFF;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.clear-btn:hover {
+  background-color: #DC2626;
 }
 svg text { font-size: 13px !important; font-weight: 700 !important; }
 </style>
@@ -877,6 +893,7 @@ The Sentence Builder learns by reading millions of books and websites online. It
 <div class="input-submit-wrapper">
   <input type="text" x-model="prompt" @input="handlePromptInput()" @keydown.enter="fetchNextWordChoices()" class="comic-text" style="flex-grow: 1; padding: 12px; border-radius: 10px; border: 2px solid #CBD5E1; box-sizing: border-box; background-color: #F8FAFC; color: #0F172A; font-size: 18px;">
   <button type="button" @click="fetchNextWordChoices()" class="submit-btn">Submit</button>
+  <button type="button" @click="clearPromptInput()" class="clear-btn">Clear</button>
 </div>
 <div class="comic-text" style="background: #0F172A; color: #F8FAFC; padding: 12px 16px; border-radius: 10px; border: 2px solid #1E293B; font-size: 18px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
 <div>
@@ -1172,18 +1189,22 @@ document.addEventListener('alpine:init', () => {
 
     handlePromptInput() {
       if (!this.prompt || this.prompt.trim() === '') {
-        this.currentChoices = [];
-        this.isLoadingChoices = false;
-        if (this.debounceTimer) clearTimeout(this.debounceTimer);
+        this.clearPromptInput();
       } else {
         this.debouncedFetchNextWord();
       }
     },
 
+    clearPromptInput() {
+      this.prompt = '';
+      this.currentChoices = [];
+      this.isLoadingChoices = false;
+      if (this.debounceTimer) clearTimeout(this.debounceTimer);
+    },
+
     debouncedFetchNextWord() {
       if (!this.prompt || this.prompt.trim() === '') {
-        this.currentChoices = [];
-        this.isLoadingChoices = false;
+        this.clearPromptInput();
         return;
       }
       this.isLoadingChoices = true;
@@ -1193,8 +1214,7 @@ document.addEventListener('alpine:init', () => {
 
     async fetchNextWordChoices() {
       if (!this.prompt || this.prompt.trim() === '') {
-        this.currentChoices = [];
-        this.isLoadingChoices = false;
+        this.clearPromptInput();
         return;
       }
 
@@ -1213,7 +1233,6 @@ document.addEventListener('alpine:init', () => {
 
         const data = await response.json();
         if (data.choices && Array.isArray(data.choices)) {
-          // Explicitly sort array in descending order by numerical probability
           const sorted = [...data.choices].sort((a, b) => parseFloat(b.prob) - parseFloat(a.prob));
           
           this.currentChoices = sorted.map((item, idx) => ({
