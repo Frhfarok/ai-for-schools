@@ -1158,12 +1158,12 @@ document.addEventListener('alpine:init', () => {
                 this.tokenCount = tokens.length;
                 this.tokenBlocks = tokens.map(t => {
                     const decoded = window.GPTTokenizer_cl100k_base.decode([t]);
-                    return decoded === ' ' || decoded === '\n' ? ' ' : decoded.replace(/\n/g,'');
+                    return decoded === ' ' || decoded === '\n' ? '␣' : decoded.replace(/\n/g,'');
                 });
             } else {
                 const rawBlocks = this.inputText.match(/[\w']+|[^\w\s]|\s+/g) || [];
                 this.tokenCount = rawBlocks.length;
-                this.tokenBlocks = rawBlocks.map(t => /^\s+$/.test(t) ? ' ' : t);
+                this.tokenBlocks = rawBlocks.map(t => /^\s+$/.test(t) ? '␣' : t);
             }
         },
 
@@ -1313,7 +1313,7 @@ document.addEventListener('alpine:init', () => {
                 const raw = window.GPTTokenizer_cl100k_base.encode(sentence);
                 this.pipelineTokens = raw.map(t => {
                     const decoded = window.GPTTokenizer_cl100k_base.decode([t]);
-                    return decoded === ' ' || decoded === '\n' ? ' ' : decoded.replace(/\n/g,'');
+                    return decoded === ' ' || decoded === '\n' ? '␣' : decoded.replace(/\n/g,'');
                 });
             } else {
                 const rawBlocks = sentence.match(/[\w']+|[^\w\s]|\s+/g) || [];
