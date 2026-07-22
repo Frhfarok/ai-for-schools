@@ -465,7 +465,7 @@ svg text { font-size: 13px !important; font-weight: 700 !important; }
 </head>
 <body x-data="llmSimulator">
 <header>
-<div class="logo-text">Large Language Models (LLMs)</div>
+<div class="logo-text">🚀 Large Language Models (LLMs)</div>
 <nav>
 <button class="home-icon-btn" x-show="activePage !== 1" @click="goToPage(1)" style="display: none;">
 Home
@@ -499,7 +499,7 @@ Al tools do not think like humans. Let's look at the three core concepts of Larg
 <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;">
 <div class="menu-card theme-splitter">
 <div>
-<span class="icon"></span>
+<span class="icon">✂️</span>
 <h3>1. The Word Splitter</h3>
 <p style="color: #475569; font-size: 15px;">See how Al breaks sentences into smaller chunks called tokens.</p>
 </div>
@@ -507,7 +507,7 @@ Al tools do not think like humans. Let's look at the three core concepts of Larg
 </div>
 <div class="menu-card theme-matcher">
 <div>
-<span class="icon"></span>
+<span class="icon">📖</span>
 <h3>2. The Context Window</h3>
 <p style="color: #475569; font-size: 15px;">See how many words the Al can keep track of at one time.</p>
 </div>
@@ -515,7 +515,7 @@ Al tools do not think like humans. Let's look at the three core concepts of Larg
 </div>
 <div class="menu-card theme-builder">
 <div>
-<span class="icon"></span>
+<span class="icon">📝</span>
 <h3>3. The Sentence Builder</h3>
 <p style="color: #475569; font-size: 15px;">See how Al uses probability to guess the next word.</p>
 </div>
@@ -534,7 +534,7 @@ Al tools do not think like humans. Let's look at the three core concepts of Larg
 <div class="progress-dot" :style="'background-color: ' + getBarColor(2, 4)"></div>
 </div>
 <div class="card" style="border-top: 5px solid #06B6D4;">
-<h2 style="color: #0891B2;">The Word Splitter</h2>
+<h2 style="color: #0891B2;">✂️ The Word Splitter</h2>
 <p>
 Al cannot read whole words the way humans do. Before it can look at your sentence, it needs to split the word into smaller chunks.
 </p>
@@ -557,16 +557,16 @@ We call these smaller chunks <strong>tokens</strong>. A token can be a single wo
 <div class="progress-dot" :style="'background-color: ' + getBarColor(3, 4)"></div>
 </div>
 <div class="card" style="border-top: 5px solid #06B6D4;">
-<h2 style="color: #0891B2;">Example: Jigsaw Puzzle</h2>
+<h2 style="color: #0891B2;">Example: 🧩 Jigsaw Puzzle</h2>
 <div class="chat-container">
 <div class="chat-row">
-<div class="chat-avatar" style="border-color: #06B6D4;"></div>
+<div class="chat-avatar" style="border-color: #06B6D4;">🧩 </div>
 <div class="chat-bubble chat-bubble-cyan">
 Think of a photo jigsaw. Instead of making one giant jigsaw puzzle piece, the whole image is made from many smaller puzzle pieces.
 </div>
 </div>
 <div class="chat-row">
-<div class="chat-avatar" style="border-color: #06B6D4;"></div>
+<div class="chat-avatar" style="border-color: #06B6D4;">✂️</div>
 <div class="chat-bubble chat-bubble-cyan">
 The Word Splitter works the same way. When it sees a long word, it breaks them into common sub-word sequences it already recognizes. This process is known as <strong>tokenization</strong>.
 </div>
@@ -614,7 +614,7 @@ The Word Splitter works the same way. When it sees a long word, it breaks them i
 <div class="accent-output" x-text="tokenCount" style="color: #0891B2;"></div>
 </div>
 <div class="teacher-note" style="background-color: #FFFFFF; border: 2px solid #CBD5E1; border-left: 4px solid #06B6D4; margin-top: 14px;">
-Notice how empty spaces () and punctuation symbols have their own puzzle piece. They are never left out.
+💡 Notice how empty spaces () and punctuation symbols have their own puzzle piece. They are never left out.
 </div>
 </div>
 </aside>
@@ -640,10 +640,10 @@ Notice how empty spaces () and punctuation symbols have their own puzzle piece. 
 True or False: When you submit a prompt, the Al skips all empty spaces and punctuation marks.
 </p>
 <div class="radio-option" :class="selectedAnswer === 'true' ? 'selected-item' : ''" @click="selectedAnswer = 'true'; evaluated = true">
-<strong>True</strong>. It only saves normal letters.
+🟢 <strong>True</strong>. It only saves normal letters.
 </div>
 <div class="radio-option" :class="selectedAnswer === 'false' ? 'selected-item' : ''" @click="selectedAnswer = 'false'; evaluated = true">
-<strong>False</strong>. Punctuation marks and spaces are separated as their own tokens.
+🔴 <strong>False</strong>. Punctuation marks and spaces are separated as their own tokens.
 </div>
 <div x-show="evaluated" style="margin-top: 14px; padding: 14px; border-radius: 10px; background-color: #F8FAFC; border: 2px solid #CBD5E1; border-left: 4px solid #06B6D4; display: none; color: #0F172A;">
 <span x-show="selectedAnswer === 'false'" style="color: #0891B2; font-weight: 700;">Correct Choice</span>
@@ -669,7 +669,7 @@ Spaces and punctuation marks change the core meaning of a phrase. A question mar
 <div class="progress-dot" :style="'background-color: ' + getBarColor(10, 4)"></div>
 </div>
 <div class="card" style="border-top: 5px solid #F97316;">
-<h2 style="color: #EA580C;">The Context Window</h2>
+<h2 style="color: #EA580C;">📖 The Context Window</h2>
 <p>
 An Al cannot look at huge amount of text at once. It has a <strong>context window</strong>, which is the amount of information it can use when generating a response.
 </p>
@@ -693,16 +693,16 @@ If important information is outside the context window, the Al may not be able t
 <div class="progress-dot" :style="'background-color: ' + getBarColor(11, 4)"></div>
 </div>
 <div class="card" style="border-top: 5px solid #F97316;">
-<h2 style="color: #EA580C;">Example: Whiteboard Space</h2>
+<h2 style="color: #EA580C;">Example: 👨🏻‍🏫 Whiteboard Space</h2>
 <div class="chat-container">
 <div class="chat-row">
-<div class="chat-avatar" style="border-color: #F97316;"></div>
+<div class="chat-avatar" style="border-color: #F97316;">👩🏻‍🏫</div>
 <div class="chat-bubble chat-bubble-orange">
 Imagine a whiteboard with limited space. When it gets full, you have to wipe away the oldest notes to write new ones.
 </div>
 </div>
 <div class="chat-row">
-<div class="chat-avatar" style="border-color: #F97316;"></div>
+<div class="chat-avatar" style="border-color: #F97316;">📖</div>
 <div class="chat-bubble chat-bubble-orange">
 The <strong>context window</strong> can only hold a certain amount of information at one time. When new words come in, the oldest information disappears. Because of this, the Al might forget things you talked about earlier, just like you can no longer read the notes that were wiped off the board.
 </div>
@@ -754,11 +754,11 @@ The <strong>context window</strong> can only hold a certain amount of informatio
 <div class="card sidebar-panel" style="background-color: #F8FAFC; height: 100%; display:flex; flex-direction:column; justify-content:space-between;">
 <div>
 <h3 style="color: #334155;">The Al's Best Guess</h3>
-<div style="color: #0F172A; margin-top: 10px; background: #FFFFFF; padding: 22px 14px; border: 1.0px solid #F97316; border-radius: 12px; text-align: center; font-size: 26px; font-weight: 700; box-shadow: 0 4px 12px rgba(249, 115, 22, 0.12);" x-text="isLoadingClipped ? '...' : clippedNextWord">
+<div style="color: #0F172A; margin-top: 10px; background: #FFFFFF; padding: 22px 14px; border: 1.0px solid #F97316; border-radius: 12px; text-align: center; font-size: 26px; font-weight: 700; box-shadow: 0 4px 12px rgba(249, 115, 22, 0.12);" x-text="isLoadingClipped ? '🤔...' : clippedNextWord">
 </div>
 </div>
 <div class="teacher-note" style="background-color: #FFFFFF; border: 2px solid #CBD5E1; border-left: 4px solid #EA580C; margin-top: 14px;">
-When important context words drop off, the Al guess turns generic!
+💡 When important context words drop off, the Al guess turns generic!
 </div>
 </div>
 </aside>
@@ -784,10 +784,10 @@ When important context words drop off, the Al guess turns generic!
 True or False: If you copy-paste an entire giant school textbook into a chat, the Al will remember the very first sentence forever.
 </p>
 <div class="radio-option" :class="selectedAnswer === 'true' ? 'selected-item' : ''" @click="selectedAnswer = 'true'; evaluated = true">
-<strong>True</strong>. The Al can see all the text, no matter how long the conversation gets.
+🟢 <strong>True</strong>. The Al can see all the text, no matter how long the conversation gets.
 </div>
 <div class="radio-option" :class="selectedAnswer === 'false' ? 'selected-item' : ''" @click="selectedAnswer = 'false'; evaluated = true">
-<strong>False</strong>. The Al can only look at a limited amount of text at one time, so old items drop off to make space.
+🔴 <strong>False</strong>. The Al can only look at a limited amount of text at one time, so old items drop off to make space.
 </div>
 <div x-show="evaluated" style="margin-top: 14px; padding: 14px; border-radius: 10px; background-color: #F8FAFC; border: 2px solid #CBD5E1; border-left: 4px solid #F97316; display: none; color: #0F172A;">
 <span x-show="selectedAnswer === 'false'" style="color: #EA580C; font-weight: 700;">Correct Choice</span>
@@ -815,7 +815,7 @@ Go to Sentence Builder &rarr;
 <div class="progress-dot" :style="'background-color: ' + getBarColor(6, 4)"></div>
 </div>
 <div class="card" style="border-top: 5px solid #8B5CF6;">
-<h2 style="color: #7C3AED;">The Sentence Builder</h2>
+<h2 style="color: #7C3AED;">📝 The Sentence Builder</h2>
 <p>
 Al does not write a whole sentence or paragraph all at once. Instead, it builds the text one word at a time.
 </p>
@@ -839,16 +839,16 @@ When you type something, the Al looks at what has already been written and guess
 <div class="progress-dot" :style="'background-color: ' + getBarColor(7, 4)"></div>
 </div>
 <div class="card" style="border-top: 5px solid #8B5CF6;">
-<h2 style="color: #7C3AED;">Example: Fill in the Blank</h2>
+<h2 style="color: #7C3AED;">Example: 🗣️ Fill in the Blank</h2>
 <div class="chat-container">
 <div class="chat-row">
-<div class="chat-avatar" style="border-color: #8B5CF6;"></div>
+<div class="chat-avatar" style="border-color: #8B5CF6;">🗣️</div>
 <div class="chat-bubble chat-bubble-purple">
 If a friend says: <em>"An apple a day keeps the doctor..."</em>, you can probably guess the next word. You expect the next word to be "away".
 </div>
 </div>
 <div class="chat-row">
-<div class="chat-avatar" style="border-color: #8B5CF6;"></div>
+<div class="chat-avatar" style="border-color: #8B5CF6;">📝</div>
 <div class="chat-bubble chat-bubble-purple">
 The Sentence Builder learns by reading millions of books and websites online. It notices which words often appear together and <strong>guesses</strong> the next word based on those patterns. It does not understand the meaning like people do.
 </div>
@@ -914,7 +914,7 @@ The Sentence Builder learns by reading millions of books and websites online. It
 </div>
 </div>
 <div class="teacher-note" style="background-color: #FFFFFF; border: 2px solid #CBD5E1; border-left: 4px solid #8B5CF6;">
-When you slide towards "creative" the Al skips its top pick and chooses more unusual or funny words! This concept is known as controlling the <strong>temperature</strong>.
+💡 When you slide towards "creative" the Al skips its top pick and chooses more unusual or funny words! This concept is known as controlling the <strong>temperature</strong>.
 </div>
 <div class="page-navigation-container">
 <button class="nav-step-btn back-step-btn" @click="goToPage(7)">Back</button>
@@ -937,10 +937,10 @@ When you slide towards "creative" the Al skips its top pick and chooses more unu
 True or False: When the Al gives an unexpected answer, it means it is being creative or inspired.
 </p>
 <div class="radio-option" :class="selectedAnswer === 'true' ? 'selected-item' : ''" @click="selectedAnswer = 'true'; evaluated = true">
-<strong>True</strong>. The Al is acting like a human writer and planning a story.
+🟢 <strong>True</strong>. The Al is acting like a human writer and planning a story.
 </div>
 <div class="radio-option" :class="selectedAnswer === 'false' ? 'selected-item' : ''" @click="selectedAnswer = 'false'; evaluated = true">
-<strong>False</strong>. The Al is not thinking or planning. It is simply choosing unusual words based on patterns in its data.
+🔴 <strong>False</strong>. The Al is not thinking or planning. It is simply choosing unusual words based on patterns in its data.
 </div>
 <div x-show="evaluated" style="margin-top: 14px; padding: 14px; border-radius: 10px; background-color: #F8FAFC; border: 2px solid #CBD5E1; border-left: 4px solid #8B5CF6; display: none; color: #0F172A;">
 <span x-show="selectedAnswer === 'false'" style="color: #7C3AED; font-weight: 700;">Correct Choice</span>
@@ -952,7 +952,7 @@ Language tools do not have feelings, goals, or awareness. When they create unexp
 </div>
 <div class="page-navigation-container">
 <button class="nav-step-btn back-step-btn" @click="goToPage(8)">Back</button>
-<button class="nav-step-btn next-step-btn" style="background-color: #0F172A;" @click="goToPage(14)">See It All Together &rarr;</button>
+<button class="nav-step-btn next-step-btn" style="background-color: #0F172A;" @click="goToPage(14)">See It All Together 🎬 &rarr;</button>
 </div>
 </div>
 </template>
@@ -966,7 +966,7 @@ Language tools do not have feelings, goals, or awareness. When they create unexp
 <div class="progress-dot" style="background-color: #0F172A;"></div>
 </div>
 <div style="background: #0F172A; color: #FFFFFF; text-align: center; padding: 18px; border-radius: 14px; margin-bottom: 16px;">
-<h1 style="font-size: 22px; margin: 0;">Putting It All Together</h1>
+<h1 style="font-size: 22px; margin: 0;">🎬 Putting It All Together</h1>
 <p style="color: #94A3B8; max-width: 600px; margin: 6px auto 0 auto; font-size: 14px;">
 Watch all three concepts work together to write a sentence word-by-word.
 </p>
@@ -986,7 +986,7 @@ Watch all three concepts work together to write a sentence word-by-word.
 </defs>
 <g transform="translate(10, 10)">
 <rect width="230" height="65" rx="10" fill="#ECFEFF" stroke="#06B6D4" stroke-width="2"/>
-<text x="115" y="26" text-anchor="middle" font-size="15">Stage 1</text>
+<text x="115" y="26" text-anchor="middle" font-size="15">✂️ Stage 1</text>
 <text x="115" y="48" text-anchor="middle" fill="#0891B2" font-weight="700">Word Splitter</text>
 </g>
 <g>
@@ -995,7 +995,7 @@ Watch all three concepts work together to write a sentence word-by-word.
 </g>
 <g transform="translate(300, 10)">
 <rect width="230" height="65" rx="10" fill="#FFF7ED" stroke="#F97316" stroke-width="2"/>
-<text x="115" y="26" text-anchor="middle" font-size="15">Stage 2</text>
+<text x="115" y="26" text-anchor="middle" font-size="15">📖 Stage 2</text>
 <text x="115" y="48" text-anchor="middle" fill="#EA580C" font-weight="700">Context Window</text>
 </g>
 <g>
@@ -1004,20 +1004,20 @@ Watch all three concepts work together to write a sentence word-by-word.
 </g>
 <g transform="translate(590, 10)">
 <rect width="230" height="65" rx="10" fill="#F5F3FF" stroke="#8B5CF6" stroke-width="2"/>
-<text x="115" y="26" text-anchor="middle" font-size="15">Stage 3</text>
+<text x="115" y="26" text-anchor="middle" font-size="15">📝 Stage 3</text>
 <text x="115" y="48" text-anchor="middle" fill="#7C3AED" font-weight="700">Sentence Builder</text>
 </g>
 <g>
 <path d="M 705 75 C 705 120, 125 120, 125 80" fill="none" stroke="#64748B" stroke-width="2" stroke-dasharray="4 4" marker-end="url(#arrowSlate)"/>
-<text x="415" y="125" text-anchor="middle" fill="#475569" font-size="12">Then it repeats, again and again, one word at a time!</text>
+<text x="415" y="125" text-anchor="middle" fill="#475569" font-size="12">🔁 Then it repeats, again and again, one word at a time!</text>
 </g>
 </svg>
 </div>
 <div class="card" style="border-top: 4px solid #0F172A;">
 <div class="controls-toolbar">
 <div class="action-btn-group">
-<button class="action-btn" :style="'background-color: ' + (pipelinePlaying ? '#475569' : '#10B981')" @click="pipelinePlaying ? stopPipelineDemo() : startPipelineDemo()" x-text="pipelinePlaying ? 'Pause' : 'Play'"></button>
-<button class="action-btn" style="background-color:#64748B;" @click="resetPipelineDemo()">Restart</button>
+<button class="action-btn" :style="'background-color: ' + (pipelinePlaying ? '#475569' : '#10B981')" @click="pipelinePlaying ? stopPipelineDemo() : startPipelineDemo()" x-text="pipelinePlaying ? '⏸ Pause' : '▶️ Play'"></button>
+<button class="action-btn" style="background-color:#64748B;" @click="resetPipelineDemo()">🔄 Restart</button>
 </div>
 <span style="padding: 4px 12px; border-radius: 999px; color: #FFFFFF; font-size: 13px; font-weight: 700;" :style="'background-color: ' + pipelineStageColor" x-text="pipelineStageLabel"></span>
 </div>
@@ -1026,11 +1026,11 @@ Watch all three concepts work together to write a sentence word-by-word.
 <template x-for="(word, index) in pipelineWords">
 <span class="word-box" style="padding: 3px 10px; font-size: 14px;" :class="(pipelineWords.length - index) <= pipelineWindow ? 'in-context' : 'out-of-context'" x-text="word"></span>
 </template>
-<span x-show="pipelineFinished" style="color:#10B981; margin-left: 6px; font-weight: 700; font-size: 14px;">Finished!</span>
+<span x-show="pipelineFinished" style="color:#10B981; margin-left: 6px; font-weight: 700; font-size: 14px;">✨ Finished!</span>
 </div>
 </div>
 <div class="step-card" :class="pipelineStage === 0 ? 'step-active-0' : 'step-inactive'">
-<h4 style="margin:0; color:#0891B2; font-size: 14px;">1. Split sentence into individual tokens</h4>
+<h4 style="margin:0; color:#0891B2; font-size: 14px;">✂️ 1. Split sentence into individual tokens</h4>
 <div style="margin-top:4px;">
 <template x-for="tok in pipelineTokens">
 <span class="token-block" style="height:28px; margin: 2px 3px; padding:0 10px; font-size: 13px;" x-text="tok"></span>
@@ -1038,12 +1038,11 @@ Watch all three concepts work together to write a sentence word-by-word.
 </div>
 </div>
 <div class="step-card" :class="pipelineStage === 1 ? 'step-active-1' : 'step-inactive'">
-<h4 style="color:#EA580C; margin: 0; font-size: 14px;">2. Looks at the visible tokens</h4>
+<h4 style="color:#EA580C; margin: 0; font-size: 14px;">📖 2. Looks at the visible tokens</h4>
 </div>
 <div class="step-card" :class="pipelineStage === 2 ? 'step-active-2' : 'step-inactive'">
-<h4 style="margin:0 0 4px 0; color:#7C3AED; font-size: 14px;">
-3. Guesses & chooses the next word
-<span class="thinking-badge" x-show="isLoadingPipeline" style="margin-left: 6px; padding: 2px 8px; font-size: 12px;">Thinking...</span>
+<h4 style="margin:0 0 4px 0; color:#7C3AED; font-size: 14px;">📝 3. Guesses & chooses the next word
+<span class="thinking-badge" x-show="isLoadingPipeline" style="margin-left: 6px; padding: 2px 8px; font-size: 12px;">🤔 Thinking...</span>
 </h4>
 <div style="display: flex; justify-content: center; gap: 16px; margin-top: 6px;">
 <template x-for="item in pipelineChoices">
@@ -1060,7 +1059,7 @@ Watch all three concepts work together to write a sentence word-by-word.
 </div>
 <div class="page-navigation-container">
 <button class="nav-step-btn back-step-btn" @click="goToPage(9)">Back</button>
-<button class="nav-step-btn next-step-btn" style="background-color: #0F172A;" @click="goToPage(1)">Finish Lesson</button>
+<button class="nav-step-btn next-step-btn" style="background-color: #0F172A;" @click="goToPage(1)">Finish Lesson 🏁</button>
 </div>
 </div>
 </template>
@@ -1087,16 +1086,16 @@ document.addEventListener('alpine:init', () => {
         isLoadingClipped: false,
         storyOptions: [
             {
-                title: "Story 1: The Secret Hero",
-                text: "Deep inside the hidden dark cave of Gotham City a hero wears a black cape and fights ..."
+                title: "🦸Story 1: The Secret Hero",
+                text: "Deep inside the hidden dark cave of Gotham City a hero wears a black cape and fights"
             },
             {
-                title: "Story 2: The Striped Animal",
-                text: "With sharp yellow teeth orange fur and dark black stripes it is a very big ..."
+                title: "🐅 Story 2: The Striped Animal",
+                text: "With sharp yellow teeth orange fur and dark black stripes it is a very big"
             },
             {
-                title: "Story 3: The Celebration Party",
-                text: "To celebrate turning ten years old there are colorful presents and bright glowing candles on the kitchen ..."
+                title: "🎂 Story 3: The Celebration Party",
+                text: "To celebrate turning ten years old there are colorful presents and bright glowing candles on the kitchen"
             }
         ],
         pipelineWords: ['The', 'little', 'robot'],
@@ -1299,8 +1298,8 @@ document.addEventListener('alpine:init', () => {
         },
 
         get pipelineStageLabel() {
-            const labels = ['Splitting into tokens...', 'Checking context window...', 'Guessing next word...'];
-            return this.pipelineFinished ? 'Story finished!' : labels[this.pipelineStage];
+            const labels = ['✂️ Splitting into tokens...', '📖 Checking context window...', '📝 Guessing next word...'];
+            return this.pipelineFinished ? '✨ Story finished!' : labels[this.pipelineStage];
         },
 
         get pipelineStageColor() {
