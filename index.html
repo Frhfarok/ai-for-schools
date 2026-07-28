@@ -26,7 +26,7 @@ body {
     min-height: 100vh;
     display: flex;
     flex-direction: column;
-    zoom: 125%; /* Automatically scale the entire page */
+    zoom: 125%;
 }
 .comic-text {
     font-family: 'Comic Sans MS', 'Comic Neue', 'Comic Sans', cursive, sans-serif !important;
@@ -494,7 +494,7 @@ Home
 <div class="card" style="background: #0F172A; color: #FFFFFF; border: none; text-align: center; padding: 28px 20px; border-radius: 16px; margin-bottom: 20px;">
 <h1>Ever wondered how AI chats with you?</h1>
 <p style="color: #94A3B8; max-width: 650px; margin: 8px auto 0 auto;">
-AI tools do not think like humans. Let's look at the three core concepts of Large Language Models, from how text is broken into pieces, to how the AI decides what to say next.
+AI tools do not think like humans. Let us look at the three core concepts of Large Language Models, from how text is broken into pieces, to how the AI decides what to say next.
 </p>
 </div>
 <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;">
@@ -543,7 +543,6 @@ AI cannot read whole words the way humans do. Before it can look at your sentenc
 We call these smaller chunks <strong>tokens</strong>. A token can be a single word, a fragment of a long word, a full stop, or even an empty space.
 </p>
 </div>
-<!-- NEW SVG FOR PAGE 2 -->
 <div class="card" style="display: flex; justify-content: center; align-items: center; padding: 10px 20px;">
 <svg viewBox="0 0 600 120" xmlns="http://www.w3.org/2000/svg" style="max-width: 90%; height: auto;">
     <rect x="20" y="35" width="200" height="50" rx="8" fill="#F1F5F9" stroke="#94A3B8" stroke-width="2"/>
@@ -673,7 +672,7 @@ True or False: When you submit a prompt, the AI skips all empty spaces and punct
 </div>
 <div x-show="evaluated" style="margin-top: 14px; padding: 14px; border-radius: 10px; background-color: #F8FAFC; border: 2px solid #CBD5E1; border-left: 4px solid #06B6D4; display: none; color: #0F172A;">
 <span x-show="selectedAnswer === 'false'" style="color: #0891B2; font-weight: 700;">Correct Choice</span>
-<span x-show="selectedAnswer === 'true'" style="color: #DC2626; font-weight: 700;">Let's Review</span>
+<span x-show="selectedAnswer === 'true'" style="color: #DC2626; font-weight: 700;">Let us Review</span>
 <p style="margin: 6px 0 0 0; color: #1E293B;">
 Spaces and punctuation marks change the core meaning of a phrase. A question mark tells the model to draft an answer, so the splitter keeps them as important tokens.
 </p>
@@ -703,7 +702,6 @@ AI cannot look at huge amount of text at once. It has a <strong>context window</
 If important information is outside the window, it might not be able to see the information when answering your questions.
 </p>
 </div>
-<!-- NEW SVG FOR PAGE 10 -->
 <div class="card" style="display: flex; justify-content: center; align-items: center; padding: 10px 20px;">
 <svg viewBox="0 0 600 120" xmlns="http://www.w3.org/2000/svg" style="max-width: 80%; height: auto;">
     <rect x="10" y="35" width="80" height="40" rx="6" fill="#F8FAFC" stroke="#E2E8F0" stroke-width="2"/>
@@ -750,17 +748,13 @@ Imagine a whiteboard with limited space. When it gets full, you must wipe away t
 </div>
 <div style="display: flex; justify-content: center; margin: 10px 0;">
 <svg viewBox="0 0 500 200" xmlns="http://www.w3.org/2000/svg" style="max-width: 60%; height: auto; display: block;">
-    <!-- Board -->
     <rect x="20" y="10" width="460" height="160" rx="5" fill="#FFFFFF" stroke="#94A3B8" stroke-width="10"/>
     <rect x="10" y="170" width="480" height="10" rx="3" fill="#64748B"/>
-    <!-- Faded old text -->
     <text x="40" y="55" font-family="'Comic Neue', cursive" font-size="20" fill="#CBD5E1">1. Twinkle, twinkle, little star</text>
     <text x="40" y="90" font-family="'Comic Neue', cursive" font-size="20" fill="#94A3B8">2. How I wonder what you are</text>
-    <!-- Eraser path -->
     <rect x="30" y="30" width="230" height="35" fill="#FFFFFF" opacity="0.85"/>
     <rect x="180" y="35" width="60" height="25" rx="3" fill="#475569"/>
     <text x="210" y="52" text-anchor="middle" font-size="12" font-weight="700" fill="#FFFFFF">Eraser</text>
-    <!-- New text -->
     <text x="40" y="130" font-family="'Comic Neue', cursive" font-size="24" font-weight="700" fill="#EA580C">3. Up above the world so high</text>
 </svg>
 </div>
@@ -816,7 +810,7 @@ The <strong>context window</strong> operates exactly this way. When new words co
 <aside>
 <div class="card sidebar-panel" style="background-color: #F8FAFC; height: 100%; display:flex; flex-direction:column; justify-content:space-between;">
 <div>
-<h3 style="color: #334155;">The AI's Best Guess</h3>
+<h3 style="color: #334155;">The AI Best Guess</h3>
 <div style="color: #0F172A; margin-top: 10px; background: #FFFFFF; padding: 22px 14px; border: 1.0px solid #F97316; border-radius: 12px; text-align: center; font-size: 26px; font-weight: 700; box-shadow: 0 4px 12px rgba(249, 115, 22, 0.12);" x-text="isLoadingClipped ? '🤔...' : clippedNextWord">
 </div>
 </div>
@@ -854,7 +848,7 @@ True or False: If you copy-paste an entire giant school textbook into a chat, th
 </div>
 <div x-show="evaluated" style="margin-top: 14px; padding: 14px; border-radius: 10px; background-color: #F8FAFC; border: 2px solid #CBD5E1; border-left: 4px solid #F97316; display: none; color: #0F172A;">
 <span x-show="selectedAnswer === 'false'" style="color: #EA580C; font-weight: 700;">Correct Choice</span>
-<span x-show="selectedAnswer === 'true'" style="color: #DC2626; font-weight: 700;">Let's Review</span>
+<span x-show="selectedAnswer === 'true'" style="color: #DC2626; font-weight: 700;">Let us Review</span>
 <p style="margin: 6px 0 0 0; color: #1E293B;">
 When a conversation goes past the context window limit, the oldest text drops out to clear space for new words coming in.
 </p>
@@ -886,7 +880,6 @@ AI does not write a whole sentence or paragraph all at once. Instead, it builds 
 When you type something, AI looks at what was written and guesses which word is most likely to come next based on its <strong>probability</strong>.
 </p>
 </div>
-<!-- NEW SVG FOR PAGE 6 -->
 <div class="card" style="display: flex; justify-content: center; align-items: center; padding: 5px 20px;">
 <svg viewBox="0 0 600 200" xmlns="http://www.w3.org/2000/svg" style="max-width: 80%; height: auto;">
     <rect x="50" y="80" width="200" height="40" rx="6" fill="#F8FAFC" stroke="#94A3B8" stroke-width="2"/>
@@ -943,18 +936,12 @@ If a friend says: <em>"An apple a day keeps the doctor..."</em>, you can probabl
 </div>
 <div style="display: flex; justify-content: center; margin: 10px 0;">
 <svg viewBox="0 0 650 160" xmlns="http://www.w3.org/2000/svg" style="max-width: 65%; height: auto; display: block;">
-    <!-- Paper -->
     <rect x="40" y="10" width="570" height="135" rx="2" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="2" filter="drop-shadow(0 4px 6px rgba(0,0,0,0.05))"/>
-    <!-- Paper lines -->
     <line x1="40" y1="50" x2="610" y2="50" stroke="#F1F5F9" stroke-width="2"/>
     <line x1="40" y1="90" x2="610" y2="90" stroke="#F1F5F9" stroke-width="2"/>
-    <!-- Paper margin line -->
     <line x1="80" y1="10" x2="80" y2="145" stroke="#FECDD3" stroke-width="2"/>
-    <!-- Text on one single line -->
     <text x="100" y="75" font-family="'Comic Neue', cursive" font-size="30" font-weight="700" fill="#334155">An apple a day keeps the doctor</text>
-    <!-- Dotted line -->
     <line x1="323" y1="80" x2="423" y2="80" stroke="#0F172A" stroke-width="3" stroke-dasharray="6"/>
-    <!-- Pencil/Pen predicting -->
     <g transform="translate(350, 50)">
         <text x="0" y="22" font-family="'Comic Neue', cursive" font-size="22" font-weight="700" fill="#8B5CF6">away</text>
         <path d="M 45 -10 L 65 -30 L 75 -20 L 55 0 Z" fill="#FCD34D" stroke="#B45309" stroke-width="1.5"/>
@@ -962,7 +949,6 @@ If a friend says: <em>"An apple a day keeps the doctor..."</em>, you can probabl
         <path d="M 45 -10 L 55 0 L 40 5 Z" fill="#FDE047" stroke="#B45309" stroke-width="1.5"/>
         <path d="M 43 -2 L 40 5 L 47 2 Z" fill="#334155"/>
     </g>
-    <!-- Probability Tag -->
     <rect x="455" y="25" width="60" height="24" rx="12" fill="#F5F3FF" stroke="#8B5CF6" stroke-width="1.5"/>
     <text x="485" y="41" text-anchor="middle" font-size="12" font-weight="700" fill="#7C3AED">99%</text>
 </svg>
@@ -1064,7 +1050,7 @@ True or False: When the AI gives an unexpected answer, it means it is being crea
 </div>
 <div x-show="evaluated" style="margin-top: 14px; padding: 14px; border-radius: 10px; background-color: #F8FAFC; border: 2px solid #CBD5E1; border-left: 4px solid #8B5CF6; display: none; color: #0F172A;">
 <span x-show="selectedAnswer === 'false'" style="color: #7C3AED; font-weight: 700;">Correct Choice</span>
-<span x-show="selectedAnswer === 'true'" style="color: #DC2626; font-weight: 700;">Let's Review</span>
+<span x-show="selectedAnswer === 'true'" style="color: #DC2626; font-weight: 700;">Let us Review</span>
 <p style="margin: 6px 0 0 0; color: #1E293B;">
 Language tools do not have feelings, goals, or awareness. When they create unexpected combinations of words, it happens because they select options with a very low probability percentage, not because they are being creative.
 </p>
@@ -1274,6 +1260,7 @@ document.addEventListener('alpine:init', () => {
             if (pageNum === 8 && this.prompt && this.prompt.trim() !== '') this.fetchNextWordChoices();
             if (pageNum === 12) this.loadSelectedStoryline();
             if (pageNum === 14) this.refreshPipelineTokens();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         },
 
         executeTokenAnalysis() {
