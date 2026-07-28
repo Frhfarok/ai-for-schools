@@ -291,7 +291,9 @@ header {
     font-size: 15px;
 }
 .radio-option {
-    display: block;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     padding: 12px 16px;
     margin: 10px 0;
     border: 2px solid #E2E8F0;
@@ -303,6 +305,38 @@ header {
 }
 .radio-option:hover { border-color: #94A3B8; background-color: #F8FAFC; }
 .radio-option.selected-item { border-color: #0F172A; background-color: #F8FAFC; }
+.vote-control-group {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.vote-btn {
+    background: #E2E8F0;
+    border: none;
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    font-weight: 700;
+    cursor: pointer;
+    color: #0F172A;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+}
+.vote-btn:hover {
+    background: #CBD5E1;
+}
+.vote-badge {
+    background: #0F172A;
+    color: #FFFFFF;
+    padding: 2px 10px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 700;
+    min-width: 45px;
+    text-align: center;
+}
 .progress-bar {
     display: flex;
     gap: 6px;
@@ -494,7 +528,7 @@ Home
 <div class="card" style="background: #0F172A; color: #FFFFFF; border: none; text-align: center; padding: 28px 20px; border-radius: 16px; margin-bottom: 20px;">
 <h1>Ever wondered how AI chats with you?</h1>
 <p style="color: #94A3B8; max-width: 650px; margin: 8px auto 0 auto;">
-AI tools do not think like humans. Let us look at the three core concepts of Large Language Models, from how text is broken into pieces, to how the AI decides what to say next.
+AI tools do not think like humans. Let's look at the three core concepts of Large Language Models, from how text is broken into pieces, to how the AI decides what to say next.
 </p>
 </div>
 <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;">
@@ -593,7 +627,7 @@ Think of a physical jigsaw. Instead of making one giant block for an entire word
 <div class="chat-row">
 <div class="chat-avatar" style="border-color: #06B6D4;">✂️</div>
 <div class="chat-bubble chat-bubble-cyan">
-The Word Splitter works the same way. When it sees a long word, it breaks it into common sub-word sequences it already recognizes. This process is known as <strong>tokenization</strong>.
+The Word Splitter works the same way. When it sees a long word, it breaks it into sub-word sequences. This process is known as <strong>tokenization</strong>.
 </div>
 </div>
 </div>
@@ -659,20 +693,30 @@ The Word Splitter works the same way. When it sees a long word, it breaks it int
 <div class="progress-dot" :style="'background-color: ' + getBarColor(5, 3)"></div>
 <div class="progress-dot" :style="'background-color: ' + getBarColor(5, 4)"></div>
 </div>
-<div class="card" x-data="{ selectedAnswer: null, evaluated: false }">
+<div class="card" x-data="{ selectedAnswer: null, evaluated: false, votes: { true: 0, false: 0 } }">
 <h2 style="color: #0F172A;">Concept Review</h2>
 <p style="color: #0F172A;">
 True or False: When you submit a prompt, the AI skips all empty spaces and punctuation marks.
 </p>
 <div class="radio-option" :class="selectedAnswer === 'true' ? 'selected-item' : ''" @click="selectedAnswer = 'true'; evaluated = true">
-🟢 <strong>True</strong>. It only saves normal letters.
+<div>🟢 <strong>True</strong>. It only saves normal letters.</div>
+<div class="vote-control-group" @click.stop>
+<button class="vote-btn" @click="votes.true = Math.max(0, votes.true - 1)">-</button>
+<span class="vote-badge" x-text="votes.true"></span>
+<button class="vote-btn" @click="votes.true++">+</button>
+</div>
 </div>
 <div class="radio-option" :class="selectedAnswer === 'false' ? 'selected-item' : ''" @click="selectedAnswer = 'false'; evaluated = true">
-🔴 <strong>False</strong>. Punctuation marks and spaces are separated as their own tokens.
+<div>🔴 <strong>False</strong>. Punctuation marks and spaces are separated as their own tokens.</div>
+<div class="vote-control-group" @click.stop>
+<button class="vote-btn" @click="votes.false = Math.max(0, votes.false - 1)">-</button>
+<span class="vote-badge" x-text="votes.false"></span>
+<button class="vote-btn" @click="votes.false++">+</button>
+</div>
 </div>
 <div x-show="evaluated" style="margin-top: 14px; padding: 14px; border-radius: 10px; background-color: #F8FAFC; border: 2px solid #CBD5E1; border-left: 4px solid #06B6D4; display: none; color: #0F172A;">
-<span x-show="selectedAnswer === 'false'" style="color: #0891B2; font-weight: 700;">Correct Choice</span>
-<span x-show="selectedAnswer === 'true'" style="color: #DC2626; font-weight: 700;">Let us Review</span>
+<span x-show="selectedAnswer === 'false'" style="color: #16c60c; font-weight: 700;">Correct Choice</span>
+<span x-show="selectedAnswer === 'true'" style="color: #DC2626; font-weight: 700;">Let's Review</span>
 <p style="margin: 6px 0 0 0; color: #1E293B;">
 Spaces and punctuation marks change the core meaning of a phrase. A question mark tells the model to draft an answer, so the splitter keeps them as important tokens.
 </p>
@@ -810,7 +854,7 @@ The <strong>context window</strong> operates exactly this way. When new words co
 <aside>
 <div class="card sidebar-panel" style="background-color: #F8FAFC; height: 100%; display:flex; flex-direction:column; justify-content:space-between;">
 <div>
-<h3 style="color: #334155;">The AI Best Guess</h3>
+<h3 style="color: #334155;">The AI's Best Guess</h3>
 <div style="color: #0F172A; margin-top: 10px; background: #FFFFFF; padding: 22px 14px; border: 1.0px solid #F97316; border-radius: 12px; text-align: center; font-size: 26px; font-weight: 700; box-shadow: 0 4px 12px rgba(249, 115, 22, 0.12);" x-text="isLoadingClipped ? '🤔...' : clippedNextWord">
 </div>
 </div>
@@ -835,20 +879,30 @@ The <strong>context window</strong> operates exactly this way. When new words co
 <div class="progress-dot" :style="'background-color: ' + getBarColor(13, 3)"></div>
 <div class="progress-dot" :style="'background-color: ' + getBarColor(13, 4)"></div>
 </div>
-<div class="card" x-data="{ selectedAnswer: null, evaluated: false }">
+<div class="card" x-data="{ selectedAnswer: null, evaluated: false, votes: { true: 0, false: 0 } }">
 <h2 style="color: #0F172A;">Concept Review</h2>
 <p style="color: #0F172A;">
 True or False: If you copy-paste an entire giant school textbook into a chat, the AI will remember the very first sentence forever.
 </p>
 <div class="radio-option" :class="selectedAnswer === 'true' ? 'selected-item' : ''" @click="selectedAnswer = 'true'; evaluated = true">
-🟢 <strong>True</strong>. The AI can see all the text, no matter how long the conversation gets.
+<div>🟢 <strong>True</strong>. The AI can see all the text, no matter how long the conversation gets.</div>
+<div class="vote-control-group" @click.stop>
+<button class="vote-btn" @click="votes.true = Math.max(0, votes.true - 1)">-</button>
+<span class="vote-badge" x-text="votes.true"></span>
+<button class="vote-btn" @click="votes.true++">+</button>
+</div>
 </div>
 <div class="radio-option" :class="selectedAnswer === 'false' ? 'selected-item' : ''" @click="selectedAnswer = 'false'; evaluated = true">
-🔴 <strong>False</strong>. The AI can only look at a limited amount of text at one time, so old items drop off to make space.
+<div>🔴 <strong>False</strong>. The AI can only look at a limited amount of text at one time, so old items drop off to make space.</div>
+<div class="vote-control-group" @click.stop>
+<button class="vote-btn" @click="votes.false = Math.max(0, votes.false - 1)">-</button>
+<span class="vote-badge" x-text="votes.false"></span>
+<button class="vote-btn" @click="votes.false++">+</button>
+</div>
 </div>
 <div x-show="evaluated" style="margin-top: 14px; padding: 14px; border-radius: 10px; background-color: #F8FAFC; border: 2px solid #CBD5E1; border-left: 4px solid #F97316; display: none; color: #0F172A;">
-<span x-show="selectedAnswer === 'false'" style="color: #EA580C; font-weight: 700;">Correct Choice</span>
-<span x-show="selectedAnswer === 'true'" style="color: #DC2626; font-weight: 700;">Let us Review</span>
+<span x-show="selectedAnswer === 'false'" style="color: #16c60c; font-weight: 700;">Correct Choice</span>
+<span x-show="selectedAnswer === 'true'" style="color: #DC2626; font-weight: 700;">Let's Review</span>
 <p style="margin: 6px 0 0 0; color: #1E293B;">
 When a conversation goes past the context window limit, the oldest text drops out to clear space for new words coming in.
 </p>
@@ -1037,20 +1091,30 @@ The Sentence Builder learns by reading millions of books and websites online. It
 <div class="progress-dot" :style="'background-color: ' + getBarColor(9, 3)"></div>
 <div class="progress-dot" :style="'background-color: ' + getBarColor(9, 4)"></div>
 </div>
-<div class="card" x-data="{ selectedAnswer: null, evaluated: false }">
+<div class="card" x-data="{ selectedAnswer: null, evaluated: false, votes: { true: 0, false: 0 } }">
 <h2 style="color: #0F172A;">Concept Review</h2>
 <p style="color: #0F172A;">
 True or False: When the AI gives an unexpected answer, it means it is being creative or inspired.
 </p>
 <div class="radio-option" :class="selectedAnswer === 'true' ? 'selected-item' : ''" @click="selectedAnswer = 'true'; evaluated = true">
-🟢 <strong>True</strong>. The AI is acting like a human writer and planning a story.
+<div>🟢 <strong>True</strong>. The AI is acting like a human writer and planning a story.</div>
+<div class="vote-control-group" @click.stop>
+<button class="vote-btn" @click="votes.true = Math.max(0, votes.true - 1)">-</button>
+<span class="vote-badge" x-text="votes.true"></span>
+<button class="vote-btn" @click="votes.true++">+</button>
+</div>
 </div>
 <div class="radio-option" :class="selectedAnswer === 'false' ? 'selected-item' : ''" @click="selectedAnswer = 'false'; evaluated = true">
-🔴 <strong>False</strong>. The AI is not thinking or planning. It is simply choosing unusual words based on patterns in its data.
+<div>🔴 <strong>False</strong>. The AI is not thinking or planning. It is simply choosing unusual words based on patterns in its data.</div>
+<div class="vote-control-group" @click.stop>
+<button class="vote-btn" @click="votes.false = Math.max(0, votes.false - 1)">-</button>
+<span class="vote-badge" x-text="votes.false"></span>
+<button class="vote-btn" @click="votes.false++">+</button>
+</div>
 </div>
 <div x-show="evaluated" style="margin-top: 14px; padding: 14px; border-radius: 10px; background-color: #F8FAFC; border: 2px solid #CBD5E1; border-left: 4px solid #8B5CF6; display: none; color: #0F172A;">
-<span x-show="selectedAnswer === 'false'" style="color: #7C3AED; font-weight: 700;">Correct Choice</span>
-<span x-show="selectedAnswer === 'true'" style="color: #DC2626; font-weight: 700;">Let us Review</span>
+<span x-show="selectedAnswer === 'false'" style="color: #16c60c; font-weight: 700;">Correct Choice</span>
+<span x-show="selectedAnswer === 'true'" style="color: #DC2626; font-weight: 700;">Let's Review</span>
 <p style="margin: 6px 0 0 0; color: #1E293B;">
 Language tools do not have feelings, goals, or awareness. When they create unexpected combinations of words, it happens because they select options with a very low probability percentage, not because they are being creative.
 </p>
