@@ -573,18 +573,28 @@ We call these smaller chunks <strong>tokens</strong>. A token can be a single wo
 <div class="progress-dot" :style="'background-color: ' + getBarColor(3, 4)"></div>
 </div>
 <div class="card" style="border-top: 5px solid #06B6D4;">
-<h2 style="color: #0891B2;">Example: 🧩 Jigsaw Puzzle</h2>
+<h2 style="color: #0891B2;">Example: Visual Jigsaw Puzzle</h2>
 <div class="chat-container">
 <div class="chat-row">
-<div class="chat-avatar" style="border-color: #06B6D4;">🧩 </div>
+<div class="chat-avatar" style="border-color: #06B6D4;">🧩</div>
 <div class="chat-bubble chat-bubble-cyan">
-Think of a photo jigsaw. Instead of making one giant jigsaw puzzle piece, the whole image is made from many smaller puzzle pieces.
+Think of a physical jigsaw. Instead of making one giant block for an entire word, the full structure is made from connecting smaller puzzle pieces together.
 </div>
+</div>
+<div style="display: flex; justify-content: center; margin: 10px 0;">
+<svg viewBox="0 0 600 200" xmlns="http://www.w3.org/2000/svg" style="max-width: 60%; height: auto; display: block;">
+    <path d="M 120 60 L 220 60 L 220 85 A 15 15 0 1 1 220 115 L 220 140 L 120 140 Z" fill="#ECFEFF" stroke="#06B6D4" stroke-width="3"/>
+    <text x="170" y="105" text-anchor="middle" font-size="24" font-weight="700" fill="#0891B2">Un</text>
+    <path d="M 220 60 L 320 60 L 320 85 A 15 15 0 1 1 320 115 L 320 140 L 220 140 L 220 115 A 15 15 0 1 0 220 85 Z" fill="#06B6D4" stroke="#0891B2" stroke-width="3"/>
+    <text x="270" y="105" text-anchor="middle" font-size="24" font-weight="700" fill="#FFFFFF">bel</text>
+    <path d="M 320 60 L 450 60 L 450 140 L 320 140 L 320 115 A 15 15 0 1 0 320 85 Z" fill="#ECFEFF" stroke="#06B6D4" stroke-width="3"/>
+    <text x="385" y="105" text-anchor="middle" font-size="24" font-weight="700" fill="#0891B2">ievable</text>
+</svg>
 </div>
 <div class="chat-row">
 <div class="chat-avatar" style="border-color: #06B6D4;">✂️</div>
 <div class="chat-bubble chat-bubble-cyan">
-The Word Splitter works the same way. When it sees a long word, it breaks them into common sub-word sequences it already recognizes. This process is known as <strong>tokenization</strong>.
+The Word Splitter works the same way. When it sees a long word, it breaks it into common sub-word sequences it already recognizes. This process is known as <strong>tokenization</strong>.
 </div>
 </div>
 </div>
@@ -730,18 +740,34 @@ If important information is outside the window, it might not be able to see the 
 <div class="progress-dot" :style="'background-color: ' + getBarColor(11, 4)"></div>
 </div>
 <div class="card" style="border-top: 5px solid #F97316;">
-<h2 style="color: #EA580C;">Example: 👨🏻‍🏫 Whiteboard Space</h2>
+<h2 style="color: #EA580C;">Example: The Whiteboard Space</h2>
 <div class="chat-container">
 <div class="chat-row">
 <div class="chat-avatar" style="border-color: #F97316;">👩🏻‍🏫</div>
 <div class="chat-bubble chat-bubble-orange">
-Imagine a whiteboard with limited space. When it gets full, you have to wipe away the oldest notes to write new ones.
+Imagine a whiteboard with limited space. When it gets full, you must wipe away the oldest notes to write new ones.
 </div>
+</div>
+<div style="display: flex; justify-content: center; margin: 10px 0;">
+<svg viewBox="0 0 500 200" xmlns="http://www.w3.org/2000/svg" style="max-width: 60%; height: auto; display: block;">
+    <!-- Board -->
+    <rect x="20" y="10" width="460" height="160" rx="5" fill="#FFFFFF" stroke="#94A3B8" stroke-width="10"/>
+    <rect x="10" y="170" width="480" height="10" rx="3" fill="#64748B"/>
+    <!-- Faded old text -->
+    <text x="40" y="55" font-family="'Comic Neue', cursive" font-size="20" fill="#CBD5E1">1. Twinkle, twinkle, little star</text>
+    <text x="40" y="90" font-family="'Comic Neue', cursive" font-size="20" fill="#94A3B8">2. How I wonder what you are</text>
+    <!-- Eraser path -->
+    <rect x="30" y="30" width="230" height="35" fill="#FFFFFF" opacity="0.85"/>
+    <rect x="180" y="35" width="60" height="25" rx="3" fill="#475569"/>
+    <text x="210" y="52" text-anchor="middle" font-size="12" font-weight="700" fill="#FFFFFF">Eraser</text>
+    <!-- New text -->
+    <text x="40" y="130" font-family="'Comic Neue', cursive" font-size="24" font-weight="700" fill="#EA580C">3. Up above the world so high</text>
+</svg>
 </div>
 <div class="chat-row">
 <div class="chat-avatar" style="border-color: #F97316;">📖</div>
 <div class="chat-bubble chat-bubble-orange">
-The <strong>context window</strong> can only hold a certain amount of information at one time. When new words come in, the oldest information disappears. Because of this, the AI might forget things you talked about earlier, just like you can no longer read the notes that were wiped off the board.
+The <strong>context window</strong> operates exactly this way. When new words come in, the oldest information disappears. The AI might forget elements you discussed earlier, just like you can no longer read notes wiped off a physical board.
 </div>
 </div>
 </div>
@@ -907,7 +933,7 @@ When you type something, AI looks at what was written and guesses which word is 
 <div class="progress-dot" :style="'background-color: ' + getBarColor(7, 4)"></div>
 </div>
 <div class="card" style="border-top: 5px solid #8B5CF6;">
-<h2 style="color: #7C3AED;">Example: 🗣️ Fill in the Blank</h2>
+<h2 style="color: #7C3AED;">Example: Fill in the Blank</h2>
 <div class="chat-container">
 <div class="chat-row">
 <div class="chat-avatar" style="border-color: #8B5CF6;">🗣️</div>
@@ -915,10 +941,36 @@ When you type something, AI looks at what was written and guesses which word is 
 If a friend says: <em>"An apple a day keeps the doctor..."</em>, you can probably guess the next word. You expect the next word to be "away".
 </div>
 </div>
+<div style="display: flex; justify-content: center; margin: 10px 0;">
+<svg viewBox="0 0 650 160" xmlns="http://www.w3.org/2000/svg" style="max-width: 65%; height: auto; display: block;">
+    <!-- Paper -->
+    <rect x="40" y="10" width="570" height="135" rx="2" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="2" filter="drop-shadow(0 4px 6px rgba(0,0,0,0.05))"/>
+    <!-- Paper lines -->
+    <line x1="40" y1="50" x2="610" y2="50" stroke="#F1F5F9" stroke-width="2"/>
+    <line x1="40" y1="90" x2="610" y2="90" stroke="#F1F5F9" stroke-width="2"/>
+    <!-- Paper margin line -->
+    <line x1="80" y1="10" x2="80" y2="145" stroke="#FECDD3" stroke-width="2"/>
+    <!-- Text on one single line -->
+    <text x="100" y="75" font-family="'Comic Neue', cursive" font-size="30" font-weight="700" fill="#334155">An apple a day keeps the doctor</text>
+    <!-- Dotted line -->
+    <line x1="323" y1="80" x2="423" y2="80" stroke="#0F172A" stroke-width="3" stroke-dasharray="6"/>
+    <!-- Pencil/Pen predicting -->
+    <g transform="translate(350, 50)">
+        <text x="0" y="22" font-family="'Comic Neue', cursive" font-size="22" font-weight="700" fill="#8B5CF6">away</text>
+        <path d="M 45 -10 L 65 -30 L 75 -20 L 55 0 Z" fill="#FCD34D" stroke="#B45309" stroke-width="1.5"/>
+        <path d="M 65 -30 L 75 -20 L 80 -25 L 70 -35 Z" fill="#F87171" stroke="#B45309" stroke-width="1.5"/>
+        <path d="M 45 -10 L 55 0 L 40 5 Z" fill="#FDE047" stroke="#B45309" stroke-width="1.5"/>
+        <path d="M 43 -2 L 40 5 L 47 2 Z" fill="#334155"/>
+    </g>
+    <!-- Probability Tag -->
+    <rect x="455" y="25" width="60" height="24" rx="12" fill="#F5F3FF" stroke="#8B5CF6" stroke-width="1.5"/>
+    <text x="485" y="41" text-anchor="middle" font-size="12" font-weight="700" fill="#7C3AED">99%</text>
+</svg>
+</div>
 <div class="chat-row">
 <div class="chat-avatar" style="border-color: #8B5CF6;">📝</div>
 <div class="chat-bubble chat-bubble-purple">
-The Sentence Builder learns by reading millions of books and websites online. It notices which words often appear together and <strong>guesses</strong> the next word based on those patterns. It does not understand the meaning like people do.
+The Sentence Builder learns by reading millions of books and websites online. It notices which words often appear together and <strong>guesses</strong> the next word based on those statistical patterns. It does not understand the meaning like human readers do.
 </div>
 </div>
 </div>
