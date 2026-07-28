@@ -492,9 +492,9 @@ Home
 <template x-if="activePage === 1">
 <div>
 <div class="card" style="background: #0F172A; color: #FFFFFF; border: none; text-align: center; padding: 28px 20px; border-radius: 16px; margin-bottom: 20px;">
-<h1>Ever wondered how Al chats with you?</h1>
+<h1>Ever wondered how AI chats with you?</h1>
 <p style="color: #94A3B8; max-width: 650px; margin: 8px auto 0 auto;">
-Al tools do not think like humans. Let's look at the three core concepts of Large Language Models, from how text is broken into pieces, to how the Al decides what to say next.
+AI tools do not think like humans. Let's look at the three core concepts of Large Language Models, from how text is broken into pieces, to how the AI decides what to say next.
 </p>
 </div>
 <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;">
@@ -502,7 +502,7 @@ Al tools do not think like humans. Let's look at the three core concepts of Larg
 <div>
 <span class="icon">✂️</span>
 <h3>1. The Word Splitter</h3>
-<p style="color: #475569; font-size: 15px;">See how Al breaks sentences into smaller chunks called tokens.</p>
+<p style="color: #475569; font-size: 15px;">See how AI breaks sentences into smaller chunks called tokens.</p>
 </div>
 <button class="start-btn bg-splitter" @click="goToPage(2)">Explore</button>
 </div>
@@ -510,7 +510,7 @@ Al tools do not think like humans. Let's look at the three core concepts of Larg
 <div>
 <span class="icon">📖</span>
 <h3>2. The Context Window</h3>
-<p style="color: #475569; font-size: 15px;">See how many words the Al can keep track of at one time.</p>
+<p style="color: #475569; font-size: 15px;">See how many words the AI can keep track of at one time.</p>
 </div>
 <button class="start-btn bg-matcher" @click="goToPage(10)">Explore</button>
 </div>
@@ -518,7 +518,7 @@ Al tools do not think like humans. Let's look at the three core concepts of Larg
 <div>
 <span class="icon">📝</span>
 <h3>3. The Sentence Builder</h3>
-<p style="color: #475569; font-size: 15px;">See how Al uses probability to guess the next word.</p>
+<p style="color: #475569; font-size: 15px;">See how AI uses probability to guess the next word.</p>
 </div>
 <button class="start-btn bg-builder" @click="goToPage(6)">Explore</button>
 </div>
@@ -537,7 +537,7 @@ Al tools do not think like humans. Let's look at the three core concepts of Larg
 <div class="card" style="border-top: 5px solid #06B6D4;">
 <h2 style="color: #0891B2;">✂️ The Word Splitter</h2>
 <p>
-Al cannot read whole words the way humans do. Before it can look at your sentence, it needs to split the word into smaller chunks.
+AI cannot read whole words the way humans do. Before it can look at your sentence, it needs to split the word into smaller chunks.
 </p>
 <p>
 We call these smaller chunks <strong>tokens</strong>. A token can be a single word, a fragment of a long word, a full stop, or even an empty space.
@@ -553,9 +553,9 @@ We call these smaller chunks <strong>tokens</strong>. A token can be a single wo
     <rect x="360" y="35" width="60" height="50" rx="8" fill="#ECFEFF" stroke="#06B6D4" stroke-width="2"/>
     <text x="390" y="65" text-anchor="middle" font-size="16" font-weight="700" fill="#0891B2">Un</text>
     <rect x="430" y="35" width="70" height="50" rx="8" fill="#ECFEFF" stroke="#06B6D4" stroke-width="2"/>
-    <text x="465" y="65" text-anchor="middle" font-size="16" font-weight="700" fill="#0891B2">believ</text>
+    <text x="465" y="65" text-anchor="middle" font-size="16" font-weight="700" fill="#0891B2">bel</text>
     <rect x="510" y="35" width="60" height="50" rx="8" fill="#ECFEFF" stroke="#06B6D4" stroke-width="2"/>
-    <text x="540" y="65" text-anchor="middle" font-size="16" font-weight="700" fill="#0891B2">able</text>
+    <text x="540" y="65" text-anchor="middle" font-size="16" font-weight="700" fill="#0891B2">ievable</text>
 </svg>
 </div>
 <div class="page-navigation-container justify-end">
@@ -608,7 +608,7 @@ The Word Splitter works the same way. When it sees a long word, it breaks them i
 <section>
 <div class="card">
 <h2 style="color: #0F172A;">Live Word Splitter</h2>
-<p style="color:#475569; margin-bottom: 10px;">Type a sentence below to see how the Al splits it into tokens:</p>
+<p style="color:#475569; margin-bottom: 10px;">Type a sentence below to see how the AI splits it into tokens:</p>
 <input type="text" x-model="inputText" @input="executeTokenAnalysis()" class="comic-text" style="width: 100%; padding: 12px; border-radius: 10px; border: 2px solid #CBD5E1; box-sizing: border-box; background-color: #F8FAFC; color: #0F172A; font-size: 18px;">
 </div>
 <div class="card">
@@ -653,7 +653,7 @@ The Word Splitter works the same way. When it sees a long word, it breaks them i
 <div class="card" x-data="{ selectedAnswer: null, evaluated: false }">
 <h2 style="color: #0F172A;">Concept Review</h2>
 <p style="color: #0F172A;">
-True or False: When you submit a prompt, the Al skips all empty spaces and punctuation marks.
+True or False: When you submit a prompt, the AI skips all empty spaces and punctuation marks.
 </p>
 <div class="radio-option" :class="selectedAnswer === 'true' ? 'selected-item' : ''" @click="selectedAnswer = 'true'; evaluated = true">
 🟢 <strong>True</strong>. It only saves normal letters.
@@ -687,7 +687,7 @@ Spaces and punctuation marks change the core meaning of a phrase. A question mar
 <div class="card" style="border-top: 5px solid #F97316;">
 <h2 style="color: #EA580C;">📖 The Context Window</h2>
 <p>
-Al cannot look at huge amount of text at once. It has a <strong>context window</strong>, which is the amount of information it can use when generating a response.
+AI cannot look at huge amount of text at once. It has a <strong>context window</strong>, which is the amount of information it can use when generating a response.
 </p>
 <p>
 If important information is outside the window, it might not be able to see the information when answering your questions.
@@ -741,7 +741,7 @@ Imagine a whiteboard with limited space. When it gets full, you have to wipe awa
 <div class="chat-row">
 <div class="chat-avatar" style="border-color: #F97316;">📖</div>
 <div class="chat-bubble chat-bubble-orange">
-The <strong>context window</strong> can only hold a certain amount of information at one time. When new words come in, the oldest information disappears. Because of this, the Al might forget things you talked about earlier, just like you can no longer read the notes that were wiped off the board.
+The <strong>context window</strong> can only hold a certain amount of information at one time. When new words come in, the oldest information disappears. Because of this, the AI might forget things you talked about earlier, just like you can no longer read the notes that were wiped off the board.
 </div>
 </div>
 </div>
@@ -778,8 +778,8 @@ The <strong>context window</strong> can only hold a certain amount of informatio
 <div class="workspace-grid">
 <section>
 <div class="card" style="height: 100%;">
-<h3 style="color: #334155;">What the Al Can Still See</h3>
-<p style="color:#475569; margin-bottom: 8px; font-size: 14px;">Faded words are hidden from the Al:</p>
+<h3 style="color: #334155;">What the AI Can Still See</h3>
+<p style="color:#475569; margin-bottom: 8px; font-size: 14px;">Faded words are hidden from the AI:</p>
 <div style="background: #FFFFFF; padding: 4px 0;">
 <template x-for="(word, index) in storyWords">
 <span class="word-box" :class="(storyWords.length - index) <= windowSize ? 'in-context' : 'out-of-context'" x-text="word"></span>
@@ -790,12 +790,12 @@ The <strong>context window</strong> can only hold a certain amount of informatio
 <aside>
 <div class="card sidebar-panel" style="background-color: #F8FAFC; height: 100%; display:flex; flex-direction:column; justify-content:space-between;">
 <div>
-<h3 style="color: #334155;">The Al's Best Guess</h3>
+<h3 style="color: #334155;">The AI's Best Guess</h3>
 <div style="color: #0F172A; margin-top: 10px; background: #FFFFFF; padding: 22px 14px; border: 1.0px solid #F97316; border-radius: 12px; text-align: center; font-size: 26px; font-weight: 700; box-shadow: 0 4px 12px rgba(249, 115, 22, 0.12);" x-text="isLoadingClipped ? '🤔...' : clippedNextWord">
 </div>
 </div>
 <div class="teacher-note" style="background-color: #FFFFFF; border: 2px solid #CBD5E1; border-left: 4px solid #EA580C; margin-top: 14px;">
-💡 When important context words drop off, the Al guess turns generic!
+💡 When important context words drop off, the AI guess turns generic!
 </div>
 </div>
 </aside>
@@ -818,13 +818,13 @@ The <strong>context window</strong> can only hold a certain amount of informatio
 <div class="card" x-data="{ selectedAnswer: null, evaluated: false }">
 <h2 style="color: #0F172A;">Concept Review</h2>
 <p style="color: #0F172A;">
-True or False: If you copy-paste an entire giant school textbook into a chat, the Al will remember the very first sentence forever.
+True or False: If you copy-paste an entire giant school textbook into a chat, the AI will remember the very first sentence forever.
 </p>
 <div class="radio-option" :class="selectedAnswer === 'true' ? 'selected-item' : ''" @click="selectedAnswer = 'true'; evaluated = true">
-🟢 <strong>True</strong>. The Al can see all the text, no matter how long the conversation gets.
+🟢 <strong>True</strong>. The AI can see all the text, no matter how long the conversation gets.
 </div>
 <div class="radio-option" :class="selectedAnswer === 'false' ? 'selected-item' : ''" @click="selectedAnswer = 'false'; evaluated = true">
-🔴 <strong>False</strong>. The Al can only look at a limited amount of text at one time, so old items drop off to make space.
+🔴 <strong>False</strong>. The AI can only look at a limited amount of text at one time, so old items drop off to make space.
 </div>
 <div x-show="evaluated" style="margin-top: 14px; padding: 14px; border-radius: 10px; background-color: #F8FAFC; border: 2px solid #CBD5E1; border-left: 4px solid #F97316; display: none; color: #0F172A;">
 <span x-show="selectedAnswer === 'false'" style="color: #EA580C; font-weight: 700;">Correct Choice</span>
@@ -854,10 +854,10 @@ Go to Sentence Builder &rarr;
 <div class="card" style="border-top: 5px solid #8B5CF6;">
 <h2 style="color: #7C3AED;">📝 The Sentence Builder</h2>
 <p>
-Al does not write a whole sentence or paragraph all at once. Instead, it builds the text one word at a time.
+AI does not write a whole sentence or paragraph all at once. Instead, it builds the text one word at a time.
 </p>
 <p>
-When you type something, Al looks at what was written and guesses which word is most likely to come next based on its <strong>probability</strong>.
+When you type something, AI looks at what was written and guesses which word is most likely to come next based on its <strong>probability</strong>.
 </p>
 </div>
 <!-- NEW SVG FOR PAGE 6 -->
@@ -941,7 +941,7 @@ The Sentence Builder learns by reading millions of books and websites online. It
 <div class="card">
 <div>
 <h2 style="margin-bottom: 2px; color: #0F172A;">Complete the Sentence</h2>
-<p class="section-subtitle" style="margin-bottom: 0;">Type a sentence and see which word the Al guesses comes next</p>
+<p class="section-subtitle" style="margin-bottom: 0;">Type a sentence and see which word the AI guesses comes next</p>
 </div>
 <div class="input-submit-wrapper">
 <input type="text" x-model="prompt" @input="handlePromptInput()" @keydown.enter="fetchNextWordChoices()" class="comic-text" style="flex-grow: 1; padding: 12px; border-radius: 10px; border: 2px solid #CBD5E1; box-sizing: border-box; background-color: #F8FAFC; color: #0F172A; font-size: 18px;">
@@ -961,8 +961,8 @@ The Sentence Builder learns by reading millions of books and websites online. It
 </div>
 </div>
 <div class="card">
-<h3 style="margin-bottom: 2px; color: #334155;">How the Al Decides</h3>
-<p class="section-subtitle">Al looks at several possible words, each word has its own percentage score:</p>
+<h3 style="margin-bottom: 2px; color: #334155;">How the AI Decides</h3>
+<p class="section-subtitle">AI looks at several possible words, each word has its own percentage score:</p>
 <div style="display: flex; justify-content: center; gap: 24px; margin: 24px 0 12px 0;">
 <template x-for="(item, index) in currentChoices">
 <div style="display: flex; flex-direction: column; align-items: center; width: 56px;" x-show="hasSubmitted">
@@ -976,13 +976,13 @@ The Sentence Builder learns by reading millions of books and websites online. It
 </template>
 </div>
 <div style="display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-top: 8px;">
-<span style="color: #8B5CF6; font-weight: 700; font-size: 14px;">Logical</span>
+<span style="color: #8B5CF6; font-weight: 700; font-size: 14px;">More likely</span>
 <input id="predictabilitySlider" type="range" min="0" max="100" x-model="predictability" @input="debouncedFetchNextWord()" class="slider-input ombre-slider" style="margin-top: 0;">
-<span style="color: #EF4444; font-weight: 700; font-size: 14px;">Creative</span>
+<span style="color: #EF4444; font-weight: 700; font-size: 14px;">Less likely</span>
 </div>
 </div>
 <div class="teacher-note" style="background-color: #FFFFFF; border: 2px solid #CBD5E1; border-left: 4px solid #8B5CF6;">
-💡 When you slide towards "creative" the Al skips its top pick and chooses more unusual or funny words! This concept is known as controlling the <strong>temperature</strong>.
+💡 When you slide towards "Less likely" the AI skips its top pick and chooses more unusual or funny words! This concept is known as controlling the <strong>temperature</strong>.
 </div>
 <div class="page-navigation-container">
 <button class="nav-step-btn back-step-btn" @click="goToPage(7)">Back</button>
@@ -1002,13 +1002,13 @@ The Sentence Builder learns by reading millions of books and websites online. It
 <div class="card" x-data="{ selectedAnswer: null, evaluated: false }">
 <h2 style="color: #0F172A;">Concept Review</h2>
 <p style="color: #0F172A;">
-True or False: When the Al gives an unexpected answer, it means it is being creative or inspired.
+True or False: When the AI gives an unexpected answer, it means it is being creative or inspired.
 </p>
 <div class="radio-option" :class="selectedAnswer === 'true' ? 'selected-item' : ''" @click="selectedAnswer = 'true'; evaluated = true">
-🟢 <strong>True</strong>. The Al is acting like a human writer and planning a story.
+🟢 <strong>True</strong>. The AI is acting like a human writer and planning a story.
 </div>
 <div class="radio-option" :class="selectedAnswer === 'false' ? 'selected-item' : ''" @click="selectedAnswer = 'false'; evaluated = true">
-🔴 <strong>False</strong>. The Al is not thinking or planning. It is simply choosing unusual words based on patterns in its data.
+🔴 <strong>False</strong>. The AI is not thinking or planning. It is simply choosing unusual words based on patterns in its data.
 </div>
 <div x-show="evaluated" style="margin-top: 14px; padding: 14px; border-radius: 10px; background-color: #F8FAFC; border: 2px solid #CBD5E1; border-left: 4px solid #8B5CF6; display: none; color: #0F172A;">
 <span x-show="selectedAnswer === 'false'" style="color: #7C3AED; font-weight: 700;">Correct Choice</span>
