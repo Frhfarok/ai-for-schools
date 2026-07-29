@@ -696,10 +696,10 @@ The Word Splitter works the same way. When it sees a long word, it breaks it int
 <div class="card" x-data="{ selectedAnswer: null, evaluated: false, votes: { true: 0, false: 0 } }">
 <h2 style="color: #0F172A;">Concept Review</h2>
 <p style="color: #0F172A;">
-True or False: When you submit a prompt, the AI skips all empty spaces and punctuation marks.
+True or False: The AI completely skips all spaces and punctuation marks before reading your text.
 </p>
 <div class="radio-option" :class="selectedAnswer === 'true' ? 'selected-item' : ''" @click="selectedAnswer = 'true'; evaluated = true">
-<div>🟢 <strong>True</strong>. It only saves normal letters.</div>
+<div>🟢 <strong>True</strong>. All punctuation and spaces are ignored.</div>
 <div class="vote-control-group" @click.stop>
 <button class="vote-btn" @click="votes.true = Math.max(0, votes.true - 1)">-</button>
 <span class="vote-badge" x-text="votes.true"></span>
@@ -707,7 +707,7 @@ True or False: When you submit a prompt, the AI skips all empty spaces and punct
 </div>
 </div>
 <div class="radio-option" :class="selectedAnswer === 'false' ? 'selected-item' : ''" @click="selectedAnswer = 'false'; evaluated = true">
-<div>🔴 <strong>False</strong>. Punctuation marks and spaces are separated as their own tokens.</div>
+<div>🔴 <strong>False</strong>. Spaces and punctuation are kept because they change the meaning of a sentence.</div>
 <div class="vote-control-group" @click.stop>
 <button class="vote-btn" @click="votes.false = Math.max(0, votes.false - 1)">-</button>
 <span class="vote-badge" x-text="votes.false"></span>
@@ -718,7 +718,7 @@ True or False: When you submit a prompt, the AI skips all empty spaces and punct
 <span x-show="selectedAnswer === 'false'" style="color: #16c60c; font-weight: 700;">Correct Choice</span>
 <span x-show="selectedAnswer === 'true'" style="color: #DC2626; font-weight: 700;">Let's Review</span>
 <p style="margin: 6px 0 0 0; color: #1E293B;">
-Spaces and punctuation marks change the core meaning of a phrase. A question mark tells the model to draft an answer, so the splitter keeps them as important tokens.
+Punctuation and spacing change how a sentence is read. For example, "Let's eat, dad!" means you are inviting your dad to eat with you, while "Let's eat dad!" means something entirely different. The tokenizer does not understand meaning, but it keeps spaces and punctuation marks so that meaning isn't lost for the rest of the AI model.
 </p>
 </div>
 </div>
@@ -882,10 +882,10 @@ The <strong>context window</strong> operates exactly this way. When new words co
 <div class="card" x-data="{ selectedAnswer: null, evaluated: false, votes: { true: 0, false: 0 } }">
 <h2 style="color: #0F172A;">Concept Review</h2>
 <p style="color: #0F172A;">
-True or False: If you copy-paste an entire giant school textbook into a chat, the AI will remember the very first sentence forever.
+True or False: If a conversation gets too long, older messages will be left outside the AI's fixed window size and can no longer be seen.
 </p>
 <div class="radio-option" :class="selectedAnswer === 'true' ? 'selected-item' : ''" @click="selectedAnswer = 'true'; evaluated = true">
-<div>🟢 <strong>True</strong>. The AI can see all the text, no matter how long the conversation gets.</div>
+<div>🟢 <strong>True</strong>. Old text drops out of the context window to make room for new text.</div>
 <div class="vote-control-group" @click.stop>
 <button class="vote-btn" @click="votes.true = Math.max(0, votes.true - 1)">-</button>
 <span class="vote-badge" x-text="votes.true"></span>
@@ -893,7 +893,7 @@ True or False: If you copy-paste an entire giant school textbook into a chat, th
 </div>
 </div>
 <div class="radio-option" :class="selectedAnswer === 'false' ? 'selected-item' : ''" @click="selectedAnswer = 'false'; evaluated = true">
-<div>🔴 <strong>False</strong>. The AI can only look at a limited amount of text at one time, so old items drop off to make space.</div>
+<div>🔴 <strong>False</strong>. The AI keeps everything you have ever typed forever.</div>
 <div class="vote-control-group" @click.stop>
 <button class="vote-btn" @click="votes.false = Math.max(0, votes.false - 1)">-</button>
 <span class="vote-badge" x-text="votes.false"></span>
@@ -901,10 +901,10 @@ True or False: If you copy-paste an entire giant school textbook into a chat, th
 </div>
 </div>
 <div x-show="evaluated" style="margin-top: 14px; padding: 14px; border-radius: 10px; background-color: #F8FAFC; border: 2px solid #CBD5E1; border-left: 4px solid #F97316; display: none; color: #0F172A;">
-<span x-show="selectedAnswer === 'false'" style="color: #16c60c; font-weight: 700;">Correct Choice</span>
-<span x-show="selectedAnswer === 'true'" style="color: #DC2626; font-weight: 700;">Let's Review</span>
+<span x-show="selectedAnswer === 'true'" style="color: #16c60c; font-weight: 700;">Correct Choice</span>
+<span x-show="selectedAnswer === 'false'" style="color: #DC2626; font-weight: 700;">Let's Review</span>
 <p style="margin: 6px 0 0 0; color: #1E293B;">
-When a conversation goes past the context window limit, the oldest text drops out to clear space for new words coming in.
+When a chat gets too long and fills up the fixed limit, the oldest messages are left outside the window, meaning the AI can no longer process them when writing a reply.
 </p>
 </div>
 </div>
@@ -1105,7 +1105,7 @@ True or False: When the AI gives an unexpected answer, it means it is being crea
 </div>
 </div>
 <div class="radio-option" :class="selectedAnswer === 'false' ? 'selected-item' : ''" @click="selectedAnswer = 'false'; evaluated = true">
-<div>🔴 <strong>False</strong>. The AI is not thinking or planning. It is simply choosing unusual words based on patterns in its data.</div>
+<div>🔴 <strong>False</strong>. The AI is not thinking or planning. It is simply picking a less common word from a list of probabilities.</div>
 <div class="vote-control-group" @click.stop>
 <button class="vote-btn" @click="votes.false = Math.max(0, votes.false - 1)">-</button>
 <span class="vote-badge" x-text="votes.false"></span>
@@ -1116,7 +1116,7 @@ True or False: When the AI gives an unexpected answer, it means it is being crea
 <span x-show="selectedAnswer === 'false'" style="color: #16c60c; font-weight: 700;">Correct Choice</span>
 <span x-show="selectedAnswer === 'true'" style="color: #DC2626; font-weight: 700;">Let's Review</span>
 <p style="margin: 6px 0 0 0; color: #1E293B;">
-Language tools do not have feelings, goals, or awareness. When they create unexpected combinations of words, it happens because they select options with a very low probability percentage, not because they are being creative.
+AI tools do not have feelings, goals, or awareness. When they create unexpected combinations of words, it happens because they select options with low probability percentage, not because they are being creative.
 </p>
 </div>
 </div>
