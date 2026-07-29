@@ -627,7 +627,7 @@ Think of a physical jigsaw. Instead of making one giant block for an entire word
 <div class="chat-row">
 <div class="chat-avatar" style="border-color: #06B6D4;">✂️</div>
 <div class="chat-bubble chat-bubble-cyan">
-The Word Splitter works the same way. When it sees a long word, it breaks it into sub-word sequences. This process is known as <strong>tokenization</strong>.
+The Word Splitter works the same way. When it sees a long word, it breaks it into it into smaller parts. This process is known as <strong>tokenization</strong>.
 </div>
 </div>
 </div>
@@ -655,7 +655,7 @@ The Word Splitter works the same way. When it sees a long word, it breaks it int
 <input type="text" x-model="inputText" @input="executeTokenAnalysis()" class="comic-text" style="width: 100%; padding: 12px; border-radius: 10px; border: 2px solid #CBD5E1; box-sizing: border-box; background-color: #F8FAFC; color: #0F172A; font-size: 18px;">
 </div>
 <div class="card">
-<h3 style="color: #334155;">The Sub-Word Tokens</h3>
+<h3 style="color: #334155;">The Tokens</h3>
 <div style="background: #FFFFFF; padding: 6px 0; border-radius: 8px;">
 <template x-for="token in tokenBlocks">
 <span class="token-block" x-text="token"></span>
@@ -673,7 +673,7 @@ The Word Splitter works the same way. When it sees a long word, it breaks it int
 <div class="accent-output" x-text="tokenCount" style="color: #0891B2;"></div>
 </div>
 <div class="teacher-note" style="background-color: #FFFFFF; border: 2px solid #CBD5E1; border-left: 4px solid #06B6D4; margin-top: 14px;">
-💡 Notice how empty spaces ( ␣ ) and punctuation symbols are represented in the puzzle. They are never left out during tokenization.
+💡 Notice how empty spaces ( ␣ ) and punctuation symbols are also shown in the puzzle. They are never left out during tokenization.
 </div>
 </div>
 </aside>
