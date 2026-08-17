@@ -30,7 +30,7 @@ Percentages must sum to 100. Do not include markdown formatting, backticks, or e
       },
 
       body: JSON.stringify({
-        model: "llama3-8b-8192",
+        model: "openai/gpt-oss-20b",
         messages: [
           { role: "system", content: systemInstruction },
           { role: "user", content: `Input text: "${prompt}"` }
