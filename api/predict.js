@@ -31,7 +31,7 @@ Percentages must sum to 100. Do not include markdown formatting, backticks, or e
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        model: "llama-3.1-8b-instant",
+        model: "llama-3.3-70b-versatile",
         messages: [
           { role: "system", content: systemInstruction },
           { role: "user", content: `Input text: "${prompt}"` }
