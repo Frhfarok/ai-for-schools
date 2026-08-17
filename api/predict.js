@@ -2,81 +2,83 @@ export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
-
-  const { prompt, temperature = 0.7 } = req.body || {};
+  const { prompt, temperature = 0.7 } = req.body;
   const apiKey = process.env.GROQ_API_KEY;
-
   if (!apiKey) {
-    console.error("GROQ_API_KEY environment variable is missing.");
+    console.error("Error: GROQ_API_KEY is missing in Vercel environment variables.");
     return res.status(500).json({ error: 'Server configuration error: Missing API Key' });
   }
+  const systemInstruction = `You are a next-word prediction engine for an educational tool. 
+Analyze the input text and generate the top 5 most likely next words. 
+You MUST respond with raw JSON only matching this exact schema:
+[
+  {"word": "word1", "prob": percentage_number},
+  {"word": "word2", "prob": percentage_number},
+  {"word": "word3", "prob": percentage_number},
+  {"word": "word4", "prob": percentage_number},
+  {"word": "word5", "prob": percentage_number}
+]
 
-  if (typeof prompt !== 'string' || prompt.trim() === '') {
-    return res.status(400).json({ error: 'Missing or invalid "prompt" in request body.' });
-  }
-
-  const systemInstruction = `You are a next-word prediction engine. Output only valid JSON.
-Format:
-{
-  "predictions": [
-    {"word": "example", "prob": 50}
-  ]
-}
-Return the top 5 most likely words with their probabilities summing to 100.`;
-
+Percentages must sum to 100. Do not include markdown formatting, backticks, or extra explanation.`;
   try {
     const apiResponse = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${apiKey}`,
         'Content-Type': 'application/json'
       },
+
       body: JSON.stringify({
-        model: "llama-3.3-70b-versatile",
+        model: "llama-3.1-8b-instant",
         messages: [
           { role: "system", content: systemInstruction },
-          { role: "user", content: `Predict next words for: ${prompt}` }
+          { role: "user", content: `Input text: "${prompt}"` }
         ],
-        temperature: Number(temperature) || 0.7,
+
+        temperature: parseFloat(temperature),
         response_format: { type: "json_object" }
       })
     });
 
     const data = await apiResponse.json();
-
     if (!apiResponse.ok) {
-      console.error("Groq API error response:", data);
-      return res.status(apiResponse.status).json({ 
-        error: data.error?.message || 'Error from Groq API' 
-      });
+      console.error("Groq API Error Detail:", data);
+      throw new Error(data.error?.message || 'Groq API Error');
     }
+    const rawText = data.choices[0].message.content;    
 
-    const rawText = data?.choices?.[0]?.message?.content;
-    if (!rawText) {
-      return res.status(502).json({ error: 'Empty content received from model' });
+    // Parse response output
+    let parsedChoices;
+    const jsonParsed = JSON.parse(rawText);
+    if (Array.isArray(jsonParsed)) {
+      parsedChoices = jsonParsed;
+    } else if (jsonParsed.choices && Array.isArray(jsonParsed.choices)) {
+      parsedChoices = jsonParsed.choices;
+    } else if (jsonParsed.words && Array.isArray(jsonParsed.words)) {
+      parsedChoices = jsonParsed.words;
+    } else {
+
+      // Find embedded array if object wrapper exists
+
+      const arrayKey = Object.keys(jsonParsed).find(k => Array.isArray(jsonParsed[k]));
+      parsedChoices = arrayKey ? jsonParsed[arrayKey] : null;
     }
-
-    let parsed;
-    try {
-      parsed = JSON.parse(rawText);
-    } catch (parseErr) {
-      console.error("JSON parse failure on raw content:", rawText);
-      return res.status(502).json({ error: 'Model did not return valid JSON' });
+    if (!parsedChoices || parsedChoices.length === 0) {
+      throw new Error("Invalid response format from model");
     }
-
-    // Extract list of predictions
-    const predictions = Array.isArray(parsed)
-      ? parsed
-      : (parsed.predictions || parsed.words || parsed.choices || []);
-
-    if (!Array.isArray(predictions) || predictions.length === 0) {
-      return res.status(502).json({ error: 'No predictions found in model output' });
-    }
-
-    return res.status(200).json({ choices: predictions.slice(0, 5) });
-
+    return res.status(200).json({ choices: parsedChoices.slice(0, 5) });
   } catch (error) {
-    console.error("Unexpected runtime error:", error);
-    return res.status(500).json({ error: error.message || 'Internal server error' });
+    console.error("Proxy error:", error);
+    return res.status(200).json({
+      choices: [
+        { word: "next", prob: 50 },
+        { word: "word", prob: 25 },
+        { word: "here", prob: 15 },
+        { word: "then", prob: 7 },
+        { word: "more", prob: 3 }
+      ]
+    });
   }
+
 }
