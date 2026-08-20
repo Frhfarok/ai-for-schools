@@ -1,3 +1,5 @@
+# Large Language Models (LLMs) Educational Tool
+
 # How LLM Works
 
 An interactive educational web application designed to support the teaching and learning of fundamental concepts behind Large Language Models (LLMs).
@@ -8,6 +10,7 @@ The tool uses interactive visualisations and examples to demonstrate three core 
 - **Next-word prediction** – how an LLM assigns probabilities to possible next words.
 
 The application was developed as part of a research project exploring the use of interactive visual tools to support teachers in explaining how Large Language Models work.
+You can access the deployed application here: [LLM Educational Tool](https://llm-module.vercel.app/)
 
 ---
 
