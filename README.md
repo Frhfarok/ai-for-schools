@@ -4,8 +4,8 @@ An interactive educational web application designed to support the teaching and 
 The tool uses interactive visualisations and examples to demonstrate three core concepts:
 
 - **Tokenisation** – how text is divided into smaller units called tokens.
-- **Next-word prediction** – how an LLM assigns probabilities to possible next words.
 - **Context windows** – how the amount of available previous text can influence a model's predictions.
+- **Next-word prediction** – how an LLM assigns probabilities to possible next words.
 
 The application was developed as part of a research project exploring the use of interactive visual tools to support teachers in explaining how Large Language Models work.
 
