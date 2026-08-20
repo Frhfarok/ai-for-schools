@@ -1,7 +1,5 @@
 # Large Language Models (LLMs) Educational Tool
 
-# How LLM Works
-
 An interactive educational web application designed to support the teaching and learning of fundamental concepts behind Large Language Models (LLMs).
 The tool uses interactive visualisations and examples to demonstrate three core concepts:
 
